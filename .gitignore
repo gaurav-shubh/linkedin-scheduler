@@ -1,0 +1,11 @@
+node_modules/
+.env
+uploads/
+data/posts.json
+data/comments.json
+data/replied_comments.json
+data/browser-profile/
+agent/__pycache__/
+agent/.venv/
+*.log
+server.err

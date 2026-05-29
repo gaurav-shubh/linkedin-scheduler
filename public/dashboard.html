@@ -1,0 +1,3537 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>hotpost</title>
+  <link rel="preconnect" href="https://fonts.googleapis.com">
+  <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+  <link href="https://fonts.googleapis.com/css2?family=Plus+Jakarta+Sans:wght@400;500;600;700;800&display=swap" rel="stylesheet">
+  <script src="https://cdnjs.cloudflare.com/ajax/libs/pdf.js/3.11.174/pdf.min.js"></script>
+  <style>
+    *, *::before, *::after { box-sizing: border-box; margin: 0; padding: 0; }
+    :root {
+      --bg-outer: #eef1f4;
+      --bg-card: #ffffff;
+      --ink: #0f172a;
+      --ink-2: #334155;
+      --muted: #64748b;
+      --muted-2: #94a3b8;
+      --line: #eef2f6;
+      --line-2: #e2e8f0;
+      --brand: #0a66c2;
+      --brand-2: #084d94;
+      --orange: #ff6a3d;
+      --orange-2: #ff8c63;
+      --mint: #5eead4;
+      --yellow: #fbbf24;
+      --lavender: #c7d2fe;
+      --pink: #fbcfe8;
+      --green: #22c55e;
+      --red: #ef4444;
+      --shadow-sm: 0 1px 2px rgba(15,23,42,.04), 0 2px 6px rgba(15,23,42,.04);
+      --shadow-md: 0 4px 16px rgba(15,23,42,.06), 0 2px 4px rgba(15,23,42,.04);
+      --shadow-lg: 0 12px 40px rgba(15,23,42,.08), 0 4px 12px rgba(15,23,42,.04);
+      --radius-sm: 10px;
+      --radius:    14px;
+      --radius-lg: 20px;
+      --radius-xl: 28px;
+    }
+    body {
+      font-family: 'Plus Jakarta Sans', -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, sans-serif;
+      background: var(--bg-outer);
+      color: var(--ink);
+      min-height: 100vh;
+      -webkit-font-smoothing: antialiased;
+    }
+    /* App container — the big rounded card that wraps everything (Learnish style) */
+    .app-shell {
+      max-width: 1320px;
+      margin: 18px auto;
+      background: var(--bg-card);
+      border-radius: var(--radius-xl);
+      box-shadow: var(--shadow-lg);
+      overflow: hidden;
+      position: relative;
+    }
+    @media (max-width: 900px) {
+      .app-shell { margin: 0; border-radius: 0; }
+    }
+
+    /* ---- Page hero (big banner per page) ---- */
+    .page-hero {
+      padding: 28px 36px 24px;
+      position: relative;
+      overflow: hidden;
+    }
+    .page-hero-inner {
+      display: flex; align-items: center; justify-content: space-between;
+      gap: 24px; max-width: 1250px; margin: 0 auto;
+    }
+    .page-hero-text { max-width: 520px; }
+    .page-hero-dot {
+      display: inline-block; width: 10px; height: 10px; border-radius: 50%;
+      background: var(--orange); margin-bottom: 10px;
+    }
+    .page-hero h1 {
+      font-size: 38px; font-weight: 800; line-height: 1.1;
+      color: var(--ink); letter-spacing: -0.025em;
+      margin-bottom: 10px;
+    }
+    .page-hero h1 em {
+      font-style: italic; color: var(--orange); font-weight: 800;
+    }
+    .page-hero p {
+      font-size: 15px; color: var(--muted); line-height: 1.6;
+      max-width: 460px;
+    }
+    .page-hero-art { flex-shrink: 0; }
+    @media (max-width: 900px) {
+      .page-hero { padding: 22px 24px 18px; }
+      .page-hero h1 { font-size: 28px; }
+      .page-hero-art { display: none; }
+    }
+
+    /* ---- Top nav ---- */
+    .nav {
+      background: #fff;
+      padding: 0 36px;
+      display: flex;
+      align-items: center;
+      height: 78px;
+      gap: 32px;
+      position: relative;
+    }
+    .nav::after {
+      content:''; position:absolute; left:36px; right:36px; bottom:0; height:1px;
+      background: var(--line);
+    }
+    .nav-logo {
+      display: flex; align-items: center; gap: 10px; text-decoration: none;
+      margin-right: auto;
+    }
+    .nav-logo-mark { display: flex; }
+    .nav-logo-text {
+      font-weight: 800; color: var(--ink); font-size: 22px; letter-spacing: -0.02em;
+    }
+    .nav-logo-dot { color: var(--orange); }
+    .nav-tabs { display: flex; gap: 6px; }
+    .nav-tab {
+      cursor: pointer; font-size: 14.5px; font-weight: 600; color: var(--muted);
+      padding: 10px 18px; border-radius: 999px;
+      transition: all .15s;
+      position: relative;
+    }
+    .nav-tab:hover { color: var(--ink); background: #f6f8fa; }
+    .nav-tab.active {
+      color: var(--ink); background: #f1f5f9;
+    }
+    .nav-tab.active::before {
+      content:''; position: absolute; top: 6px; right: 14px;
+      width: 6px; height: 6px; border-radius: 50%; background: var(--orange);
+    }
+    .auth-pill {
+      font-size: 13px; padding: 8px 16px; border-radius: 999px; font-weight: 700;
+      background: #fff; color: var(--red); border: 1.5px solid #fecaca; cursor: pointer;
+      transition: all .15s;
+      display: inline-flex; align-items: center; gap: 6px;
+      white-space: nowrap; flex-shrink: 0; max-width: 220px;
+    }
+    .auth-pill::before {
+      content:''; width: 7px; height: 7px; border-radius: 50%; background: var(--red);
+      flex-shrink: 0;
+    }
+    .auth-pill:hover { background: #fef2f2; transform: translateY(-1px); }
+    .auth-pill.ok {
+      color: #047857; border-color: #86efac;
+    }
+    .auth-pill.ok::before { background: var(--green); }
+    .auth-pill-text { overflow: hidden; text-overflow: ellipsis; white-space: nowrap; }
+    @media (max-width: 860px) {
+      .nav { padding: 0 16px; gap: 8px; }
+      .nav-logo-text { display: none; }
+      .auth-pill { padding: 8px 12px; max-width: 44px; }
+      .auth-pill-text { display: none; }
+      .nav-tabs { gap: 2px; }
+      .nav-tab { padding: 8px 10px; font-size: 13px; }
+    }
+
+    /* ---- Pages ---- */
+    .page { display: none; }
+    .page.active { display: block; }
+
+    /* ---- Main composer layout ---- */
+    .main-wrap {
+      display: grid;
+      grid-template-columns: minmax(0, 1fr) 380px;
+      gap: 18px;
+      padding: 0 36px 36px;
+      max-width: 1280px;
+      margin: 0 auto;
+    }
+    @media (max-width: 980px) {
+      .main-wrap { grid-template-columns: 1fr; padding: 0 24px 24px; }
+      .preview-sticky { position: static; }
+    }
+    @media (max-width: 600px) {
+      .main-wrap { padding: 0 16px 16px; }
+    }
+
+    /* ---- Cards ---- */
+    .card {
+      background: #fff; border-radius: var(--radius-lg); border: 1px solid var(--line-2);
+      overflow: hidden;
+      box-shadow: var(--shadow-md);
+    }
+    .card-header {
+      padding: 20px 22px 0; font-size: 12px; font-weight: 700;
+      color: var(--muted); text-transform: uppercase; letter-spacing: .5px;
+    }
+    .card-body { padding: 18px 22px 22px; }
+
+    /* ---- Compose card (the merged Schedule card) ---- */
+    .compose-card {
+      background: #fff; border-radius: var(--radius-lg); border: 1px solid var(--line-2);
+      box-shadow: var(--shadow-md); overflow: hidden; margin-bottom: 18px;
+    }
+    .compose-header {
+      padding: 16px 22px; border-bottom: 1px solid var(--line);
+      display: flex; align-items: center; gap: 12px;
+    }
+    .compose-settings-row {
+      padding: 12px 22px; background: #fafbfc; border-bottom: 1px solid var(--line);
+      display: flex; align-items: center; gap: 10px; flex-wrap: wrap;
+    }
+    .compose-setting-group {
+      display: flex; flex-direction: column; gap: 3px; flex: 1; min-width: 160px;
+    }
+    .compose-setting-label {
+      font-size: 10px; font-weight: 700; color: var(--muted-2);
+      text-transform: uppercase; letter-spacing: .06em;
+    }
+    .compose-setting-input {
+      background: #fff; border: 1.5px solid var(--line-2); border-radius: 10px;
+      padding: 8px 12px; font-size: 13.5px; font-family: inherit; color: var(--ink);
+      transition: border-color .15s;
+    }
+    .compose-setting-input:focus { outline: none; border-color: var(--orange); }
+    select.compose-setting-input { cursor: pointer; }
+    .compose-actions { display: flex; gap: 8px; margin-left: auto; flex-shrink: 0; }
+    .compose-inline-fields {
+      padding: 12px 22px; border-top: 1px solid var(--line);
+      display: grid; grid-template-columns: 1fr 1fr; gap: 10px;
+    }
+    @media (max-width: 600px) {
+      .compose-inline-fields { grid-template-columns: 1fr; }
+      .compose-settings-row { flex-direction: column; align-items: stretch; }
+      .compose-actions { margin-left: 0; width: 100%; }
+    }
+
+    /* ---- Rich text editor ---- */
+    .editor-toolbar {
+      display: flex; align-items: center; gap: 2px;
+      padding: 8px 10px; border-bottom: 1px solid #eee;
+      flex-wrap: wrap;
+    }
+    .tb-btn {
+      width: 32px; height: 32px; border: none; background: transparent;
+      border-radius: 5px; cursor: pointer; font-size: 14px; color: #444;
+      display: flex; align-items: center; justify-content: center;
+      transition: background .12s;
+      font-family: inherit;
+    }
+    .tb-btn:hover { background: #f0f0f0; }
+    .tb-btn.active { background: #e8f0fb; color: #0a66c2; }
+    .tb-sep { width: 1px; height: 22px; background: #ddd; margin: 0 4px; }
+    .tb-label { font-size: 11px; color: #999; margin-left: 4px; }
+
+    #editor {
+      min-height: 220px; max-height: 400px;
+      padding: 16px 22px;
+      font-size: 14px; line-height: 1.65;
+      outline: none; overflow-y: auto;
+      white-space: pre-wrap; word-break: break-word;
+      color: #1a1a1a;
+    }
+    #editor:empty::before {
+      content: attr(data-placeholder);
+      color: #aaa; pointer-events: none;
+    }
+    .char-bar {
+      display: flex; justify-content: space-between; align-items: center;
+      padding: 6px 16px; border-top: 1px solid #eee;
+      font-size: 12px; color: #999;
+    }
+    .char-bar .count.warn { color: #e07000; }
+    .char-bar .count.over { color: #cc0000; }
+
+    /* ---- Post options ---- */
+    .options-grid {
+      display: grid; grid-template-columns: 1fr 1fr; gap: 12px;
+    }
+    label.field-label {
+      display: block; font-size: 12px; font-weight: 600; color: #555;
+      margin-bottom: 5px;
+    }
+    input[type="text"], input[type="datetime-local"], select, textarea.small-ta {
+      width: 100%; padding: 8px 10px; border: 1px solid #ddd; border-radius: 6px;
+      font-size: 13px; font-family: inherit; color: #1a1a1a;
+      transition: border-color .15s, box-shadow .15s;
+    }
+    input:focus, select:focus, textarea:focus {
+      outline: none; border-color: #0a66c2;
+      box-shadow: 0 0 0 2px rgba(10,102,194,.12);
+    }
+    textarea.small-ta { min-height: 54px; resize: vertical; }
+    .full-col { grid-column: 1 / -1; }
+
+    /* ---- File drop zone ---- */
+    .drop-zone {
+      border: 2px dashed #ccc; border-radius: 8px; padding: 18px;
+      text-align: center; color: #888; font-size: 13px; cursor: pointer;
+      transition: border-color .15s, background .15s; position: relative;
+    }
+    .drop-zone:hover, .drop-zone.drag-over { border-color: #0a66c2; background: #f0f6ff; }
+    .drop-zone input[type="file"] { position: absolute; inset: 0; opacity: 0; cursor: pointer; width: 100%; }
+    .drop-zone .file-list { margin-top: 8px; font-size: 12px; color: #0a66c2; }
+
+    /* ---- Buttons (Learnish-style chunky pills) ---- */
+    .action-row { display: flex; gap: 10px; margin-top: 18px; align-items: center; }
+    .btn {
+      padding: 11px 22px; border: none; border-radius: 999px;
+      font-size: 14px; font-weight: 700; cursor: pointer; font-family: inherit;
+      transition: transform .15s, box-shadow .15s, background .15s;
+      display: inline-flex; align-items: center; gap: 6px;
+      letter-spacing: -0.01em;
+    }
+    .btn:hover { transform: translateY(-1px); }
+    .btn:active { transform: translateY(0); }
+    .btn-primary { background: var(--ink); color: #fff; box-shadow: 0 4px 12px rgba(15,23,42,.18); }
+    .btn-primary:hover { background: #1e293b; box-shadow: 0 6px 18px rgba(15,23,42,.25); }
+    .btn-orange { background: var(--orange); color: #fff; box-shadow: 0 4px 12px rgba(255,106,61,.3); }
+    .btn-orange:hover { background: #ff5722; box-shadow: 0 6px 18px rgba(255,106,61,.4); }
+    .btn-publish { background: var(--green); color: #fff; box-shadow: 0 4px 12px rgba(34,197,94,.3); }
+    .btn-publish:hover { background: #16a34a; box-shadow: 0 6px 18px rgba(34,197,94,.4); }
+    .btn-outline { background: #fff; color: var(--ink); border: 1.5px solid var(--line-2); }
+    .btn-outline:hover { border-color: var(--ink); background: #fafbfc; }
+    .btn-ghost { background: #f1f5f9; color: var(--ink-2); }
+    .btn-ghost:hover { background: #e2e8f0; }
+    .btn-danger { background: #fef2f2; color: var(--red); }
+    .btn-danger:hover { background: #fee2e2; }
+    .btn-sm { padding: 7px 14px; font-size: 12.5px; }
+
+    /* ---- LinkedIn preview (right panel) ---- */
+    .preview-sticky { position: sticky; top: 16px; }
+    .li-post {
+      font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, sans-serif;
+    }
+    .li-header { display: flex; gap: 10px; align-items: flex-start; padding: 12px 16px 0; }
+    .li-avatar {
+      width: 42px; height: 42px; border-radius: 50%; background: #0a66c2;
+      color: #fff; font-weight: 700; font-size: 16px;
+      display: flex; align-items: center; justify-content: center; flex-shrink: 0;
+    }
+    .li-name { font-weight: 600; font-size: 13.5px; line-height: 1.3; }
+    .li-sub { font-size: 11.5px; color: #666; }
+    .li-text {
+      padding: 10px 16px 4px; font-size: 14px; line-height: 1.45;
+      color: rgba(0,0,0,0.9); word-break: break-word; min-height: 40px;
+      font-family: -apple-system, system-ui, "Segoe UI", Roboto, Helvetica, Arial, sans-serif;
+    }
+    /* Paragraph spacing tuned to match LinkedIn's actual feed render */
+    .li-text p { margin: 0 0 14px 0; }
+    .li-text p:last-child { margin-bottom: 0; }
+    .li-text p:empty { height: 14px; margin: 0; }
+    .li-see-more {
+      color: #0a66c2; font-size: 13px; font-weight: 600; cursor: pointer;
+      white-space: nowrap;
+    }
+    .li-see-more:hover { text-decoration: underline; }
+    .li-show-less {
+      display: block; padding: 4px 16px 8px;
+      color: #0a66c2; font-size: 13px; font-weight: 600; cursor: pointer;
+    }
+    .li-show-less:hover { text-decoration: underline; }
+    .li-media-wrap { margin: 0; overflow: hidden; }
+    /* Single image — natural size, no crop */
+    .li-media-single img { width: 100%; height: auto; max-height: 500px; object-fit: contain; background: #000; display: block; }
+    /* Multi-image grid — equal-height crop (LinkedIn style) */
+    .li-media-grid { display: grid; gap: 2px; }
+    .li-media-grid.g2 { grid-template-columns: 1fr 1fr; }
+    .li-media-grid.g3 { grid-template-columns: 1fr 1fr; }
+    .li-media-grid.g3 .g3-main { grid-column: 1 / -1; }
+    .li-media-grid .thumb { position: relative; overflow: hidden; height: 180px; }
+    .li-media-grid .thumb img { width: 100%; height: 100%; object-fit: cover; display: block; }
+    .li-media-grid .thumb .more-overlay {
+      position: absolute; inset: 0; background: rgba(0,0,0,.5);
+      color: #fff; font-size: 24px; font-weight: 700;
+      display: flex; align-items: center; justify-content: center;
+    }
+    /* LinkedIn-style carousel (left → right) */
+    .li-carousel { position: relative; background: #000; user-select: none; }
+    .li-carousel-track {
+      display: flex; overflow-x: hidden;
+      scroll-snap-type: x mandatory; scroll-behavior: smooth;
+    }
+    .li-carousel-slide {
+      flex-shrink: 0; width: 100%; scroll-snap-align: start;
+      display: flex; align-items: center; justify-content: center;
+      background: #1a1a1a; max-height: 420px; overflow: hidden;
+    }
+    .li-carousel-slide canvas { max-width: 100%; max-height: 420px; display: block; }
+    .li-carousel-arrow {
+      position: absolute; top: 50%; transform: translateY(-50%);
+      background: rgba(255,255,255,.9); border: none; border-radius: 50%;
+      width: 32px; height: 32px; font-size: 18px; cursor: pointer;
+      display: flex; align-items: center; justify-content: center;
+      box-shadow: 0 2px 6px rgba(0,0,0,.3); z-index: 2;
+      transition: opacity .15s;
+    }
+    .li-carousel-arrow:hover { background: #fff; }
+    .li-carousel-arrow.prev { left: 8px; }
+    .li-carousel-arrow.next { right: 8px; }
+    .li-carousel-arrow:disabled { opacity: 0.3; cursor: default; }
+    .li-carousel-counter {
+      position: absolute; bottom: 8px; left: 50%; transform: translateX(-50%);
+      background: rgba(0,0,0,.55); color: #fff;
+      font-size: 11px; font-weight: 600; padding: 3px 10px; border-radius: 10px;
+    }
+    .li-carousel-loading { color: #aaa; font-size: 13px; padding: 60px; text-align: center; width: 100%; }
+    .li-media-placeholder {
+      margin: 0; background: #f0f0f0; text-align: center;
+      padding: 36px 16px; font-size: 13px; color: #888;
+    }
+    .li-stats {
+      display: flex; justify-content: space-between; padding: 6px 16px;
+      font-size: 12px; color: #666; border-top: 1px solid #f0f0f0;
+      margin-top: 8px;
+    }
+    .li-actions {
+      display: grid; grid-template-columns: repeat(4, 1fr);
+      border-top: 1px solid #f0f0f0;
+    }
+    .li-action {
+      padding: 10px 4px; text-align: center; font-size: 12.5px; font-weight: 600;
+      color: #666; cursor: pointer; border-radius: 4px;
+    }
+    .li-action:hover { background: #f5f5f5; }
+
+    .preview-meta {
+      padding: 10px 14px; background: #f8f9fa; border-top: 1px solid #eee;
+      font-size: 11.5px; color: #666; display: flex; gap: 12px; flex-wrap: wrap;
+    }
+    .preview-meta span { display: flex; align-items: center; gap: 4px; }
+    .dot-ok { color: #15803d; }
+    .dot-warn { color: #e07000; }
+
+    /* ---- Queue / scheduled list ---- */
+    .queue-wrap { grid-column: 1 / -1; }
+    .queue-header {
+      display: flex; align-items: center; justify-content: space-between;
+      padding: 18px 22px;
+    }
+    .queue-header h2 { font-size: 16px; font-weight: 800; color: var(--ink); letter-spacing: -0.01em; }
+    .queue-empty {
+      padding: 40px 28px; text-align: center; color: var(--muted); font-size: 13px; line-height: 1.6;
+    }
+    .q-item {
+      border-top: 1px solid #f0f0f0; padding: 14px 18px;
+      display: grid; grid-template-columns: auto 1fr auto; gap: 14px; align-items: start;
+    }
+    .q-status {
+      padding: 3px 9px; border-radius: 12px; font-size: 11px; font-weight: 700;
+      white-space: nowrap;
+    }
+    .q-scheduled  { background: #fef3c7; color: #92400e; }
+    .q-publishing { background: #dbeafe; color: #1d4ed8; }
+    .q-published  { background: #d1fae5; color: #065f46; }
+    .q-failed     { background: #fee2e2; color: #991b1b; }
+    .q-cancelled  { background: #f3f4f6; color: #6b7280; }
+    .q-text { font-size: 13px; color: #444; line-height: 1.5; overflow: hidden; display: -webkit-box; -webkit-line-clamp: 2; -webkit-box-orient: vertical; }
+    .q-meta { font-size: 11.5px; color: #999; margin-top: 4px; }
+    .q-actions { display: flex; gap: 6px; flex-shrink: 0; }
+    .q-error { font-size: 11.5px; color: #991b1b; margin-top: 5px; background: #fff1f2; padding: 5px 8px; border-radius: 5px; border-left: 3px solid #f87171; }
+
+    /* ---- History sections ---- */
+    .hist-section { margin-top: 14px; }
+    .hist-header {
+      display: flex; align-items: center; justify-content: space-between;
+      padding: 10px 18px; cursor: pointer; user-select: none;
+      border-bottom: 1px solid #f0f0f0;
+    }
+    .hist-header:hover { background: #fafafa; }
+    .hist-title { font-size: 13px; font-weight: 700; display: flex; align-items: center; gap: 8px; }
+    .hist-count { font-size: 11px; font-weight: 600; padding: 2px 8px; border-radius: 10px; }
+    .hist-count.green { background: #d1fae5; color: #065f46; }
+    .hist-count.red   { background: #fee2e2; color: #991b1b; }
+    .hist-toggle { font-size: 12px; color: #aaa; display: flex; align-items: center; gap: 8px; }
+    .hist-body { display: none; }
+    .hist-body.open { display: block; }
+    .btn-clear-all {
+      font-size: 11px; padding: 4px 10px; border-radius: 6px;
+      background: #fff1f2; color: #b91c1c; border: 1px solid #fca5a5;
+      cursor: pointer; font-weight: 600;
+    }
+    .btn-clear-all:hover { background: #fecaca; }
+    .btn-del {
+      font-size: 11px; padding: 3px 8px; border-radius: 5px;
+      background: #f9fafb; color: #6b7280; border: 1px solid #e5e7eb;
+      cursor: pointer; font-weight: 600;
+    }
+    .btn-del:hover { background: #fee2e2; color: #b91c1c; border-color: #fca5a5; }
+
+    /* ---- Drafts page ---- */
+    .drafts-page-wrap {
+      max-width: 1280px;
+      margin: 0 auto;
+      padding: 0 36px 36px;
+    }
+
+    .drafts-layout {
+      display: grid;
+      grid-template-columns: 240px minmax(0, 1fr) 340px;
+      height: calc(100vh - 280px);
+      min-height: 520px;
+      border: 1px solid var(--line-2);
+      border-radius: var(--radius-lg);
+      overflow: hidden;
+      background: #fff;
+      box-shadow: var(--shadow-md);
+    }
+    /* Responsive: collapse preview below 1180px, show as toggle panel */
+    @media (max-width: 1180px) {
+      .drafts-layout { grid-template-columns: 240px minmax(0, 1fr); height: auto; min-height: 520px; }
+      .draft-preview-panel { display: none; }
+      .draft-preview-panel.preview-open {
+        display: block; position: fixed; inset: 0; z-index: 100;
+        background: #fff; overflow-y: auto; padding-bottom: 60px;
+      }
+      .preview-toggle-btn { display: flex !important; }
+    }
+    @media (max-width: 760px) {
+      .drafts-page-wrap { padding: 0 12px 24px; }
+      .drafts-layout { grid-template-columns: minmax(0, 1fr); height: auto; }
+      .drafts-sidebar { display: none; }
+      .drafts-sidebar.sidebar-open {
+        display: flex; position: fixed; inset: 0; z-index: 100;
+        background: #fff; width: 80vw; max-width: 300px; height: 100%;
+        flex-direction: column;
+      }
+    }
+    .preview-toggle-btn { display: none; }
+    .preview-close-btn { display: none; }
+    @media (max-width: 1180px) {
+      .preview-close-btn { display: flex !important; }
+    }
+
+    /* Left sidebar */
+    .drafts-sidebar {
+      border-right: 1px solid var(--line);
+      background: #fafbfc;
+      display: flex; flex-direction: column; overflow: hidden;
+    }
+    .drafts-sidebar-header {
+      padding: 18px 16px 14px;
+      display: flex; align-items: center; justify-content: space-between;
+      border-bottom: 1px solid var(--line); flex-shrink: 0;
+      background: #fff;
+    }
+    .drafts-sidebar-title { font-size: 15px; font-weight: 800; color: var(--ink); letter-spacing: -0.01em; }
+    .drafts-count {
+      font-size: 11px; color: var(--muted); background: #f1f5f9;
+      padding: 3px 9px; border-radius: 999px; margin-left: 6px; font-weight: 700;
+    }
+    .drafts-list { flex: 1; overflow-y: auto; }
+    .draft-item {
+      padding: 11px 13px; cursor: pointer; border-bottom: 1px solid #f1f5f9;
+      transition: background .1s; position: relative;
+    }
+    .draft-item:hover { background: #f1f5f9; }
+    .draft-item.active { background: #fff5f0; border-left: 3px solid var(--orange); padding-left: 10px; }
+    .draft-item.active .draft-item-title { color: var(--ink); }
+    .draft-item-title {
+      font-size: 13px; font-weight: 600; color: #1e293b;
+      white-space: nowrap; overflow: hidden; text-overflow: ellipsis; margin-bottom: 3px;
+    }
+    .draft-item-title.empty { color: #cbd5e1; font-weight: 400; font-style: italic; }
+    .draft-item-meta { font-size: 11px; color: #94a3b8; display: flex; gap: 8px; }
+    .draft-item-badge {
+      font-size: 10px; padding: 2px 7px; border-radius: 999px;
+      background: #fef3c7; color: #92400e; font-weight: 700; text-transform: capitalize;
+    }
+    .post-as-refresh {
+      display: inline-block; margin-left: 6px; color: var(--brand);
+      text-decoration: none; font-weight: 700; cursor: pointer;
+      transition: transform .2s ease;
+    }
+    .post-as-refresh:hover { transform: rotate(180deg); }
+    .post-as-refresh.spinning { animation: pas-spin 1s linear infinite; }
+    @keyframes pas-spin { to { transform: rotate(360deg); } }
+
+    /* Unified post-type pills, used in queue / published / failed / drafts.
+       One color per post type so users can scan a list at a glance. */
+    .type-badge {
+      display: inline-flex; align-items: center; gap: 4px;
+      font-size: 11px; font-weight: 700; padding: 2px 9px; border-radius: 999px;
+      letter-spacing: .01em; white-space: nowrap; line-height: 1.5;
+    }
+    .type-badge.t-text     { background: #e6f0fb; color: #0a66c2; }   /* LinkedIn blue */
+    .type-badge.t-image    { background: #fff4ee; color: #c44a1e; }   /* warm orange  */
+    .type-badge.t-carousel { background: #ecfdf5; color: #0f766e; }   /* mint/teal    */
+    .type-badge.t-mixed    { background: #fef3c7; color: #92400e; }   /* amber        */
+    .type-badge.t-video    { background: #f3e8ff; color: #7c3aed; }   /* purple       */
+    .draft-item-del {
+      position: absolute; right: 8px; top: 50%; transform: translateY(-50%);
+      display: none; background: none; border: none; color: #94a3b8;
+      cursor: pointer; font-size: 14px; padding: 4px;
+    }
+    .draft-item-del:hover { color: #dc2626; }
+    .draft-item:hover .draft-item-del { display: block; }
+    .drafts-empty-list {
+      padding: 32px 16px; text-align: center; color: #94a3b8; font-size: 13px; line-height: 1.7;
+    }
+
+    /* Right editor panel */
+    .draft-editor-panel {
+      display: flex; flex-direction: column; overflow: hidden; background: #fff;
+    }
+    .draft-editor-topbar {
+      padding: 10px 16px 8px;
+      border-bottom: 1px solid #f1f5f9;
+      display: flex; align-items: center; gap: 8px; flex-shrink: 0;
+      flex-wrap: wrap;
+    }
+    .draft-top-actions { display: flex; gap: 6px; margin-left: auto; flex-shrink: 0; }
+    .draft-title-input {
+      flex: 1; border: none; outline: none; font-size: 16px; font-weight: 700;
+      color: #1e293b; background: transparent;
+      font-family: inherit;
+    }
+    .draft-title-input::placeholder { color: #cbd5e1; font-weight: 400; }
+    .draft-type-select {
+      font-size: 12px; padding: 4px 8px; border: 1px solid #e2e8f0; border-radius: 6px;
+      color: #475569; background: #f8fafc; cursor: pointer; flex-shrink: 0;
+    }
+    .draft-autosave {
+      font-size: 11px; color: #94a3b8; white-space: nowrap; flex-shrink: 0;
+      transition: color .3s;
+    }
+    .draft-autosave.saving { color: #f59e0b; }
+    .draft-autosave.saved  { color: #16a34a; }
+
+    .draft-toolbar {
+      display: flex; align-items: center; gap: 2px; flex-wrap: wrap;
+      padding: 6px 10px; border-bottom: 1px solid #f1f5f9; flex-shrink: 0;
+      background: #fafafa;
+    }
+    .draft-editor-body { flex: 1; overflow-y: auto; padding: 14px 18px; }
+    .draft-content-area {
+      min-height: 160px; outline: none; font-size: 14px; line-height: 1.7;
+      color: #1e293b; white-space: pre-wrap; word-break: break-word;
+    }
+    .draft-content-area:empty::before {
+      content: attr(data-placeholder); color: #cbd5e1; pointer-events: none;
+    }
+
+    /* File upload zone in drafts */
+    .draft-media-zone {
+      margin: 10px 18px 0; display: none;
+    }
+    .draft-drop-zone {
+      border: 2px dashed #e2e8f0; border-radius: 8px; padding: 12px 16px;
+      text-align: center; color: #94a3b8; font-size: 12.5px; cursor: pointer;
+      transition: border-color .15s, background .15s; position: relative;
+    }
+    .draft-drop-zone:hover { border-color: #0a66c2; background: #f0f6ff; color: #0a66c2; }
+    .draft-drop-zone input[type="file"] {
+      position: absolute; inset: 0; opacity: 0; cursor: pointer; width: 100%;
+    }
+    .draft-attached-files {
+      display: flex; flex-wrap: wrap; gap: 6px; margin-top: 8px;
+    }
+    .draft-file-chip {
+      display: flex; align-items: center; gap: 5px;
+      background: #f1f5f9; border: 1px solid #e2e8f0; border-radius: 6px;
+      padding: 3px 8px; font-size: 12px; color: #475569;
+    }
+    .draft-file-chip button {
+      background: none; border: none; color: #94a3b8; cursor: pointer;
+      font-size: 13px; padding: 0; line-height: 1;
+    }
+    .draft-file-chip button:hover { color: #dc2626; }
+
+    .draft-meta-fields {
+      padding: 10px 18px 6px; border-top: 1px solid #f1f5f9; flex-shrink: 0;
+      display: grid; grid-template-columns: 1fr 1fr; gap: 8px;
+    }
+    .draft-field label { font-size: 11px; font-weight: 600; color: #94a3b8; display: block; margin-bottom: 3px; text-transform: uppercase; letter-spacing: .04em; }
+    .draft-field input {
+      width: 100%; padding: 6px 10px; border: 1px solid #e2e8f0; border-radius: 6px;
+      font-size: 12.5px; color: #334155; outline: none; font-family: inherit;
+    }
+    .draft-field input:focus { border-color: #0a66c2; }
+
+    .draft-footer {
+      padding: 10px 18px; border-top: 1px solid #f1f5f9; flex-shrink: 0;
+      display: flex; align-items: center; justify-content: space-between; gap: 10px;
+      background: #fafafa;
+    }
+    .draft-char-count { font-size: 12px; color: #94a3b8; }
+    .draft-footer-actions { display: flex; gap: 8px; }
+    .draft-footer-actions .btn-del-draft {
+      background: none; border: none; color: #94a3b8; cursor: pointer; font-size: 18px;
+      padding: 4px; border-radius: 6px; transition: color .1s;
+    }
+    .draft-footer-actions .btn-del-draft:hover { color: #dc2626; background: #fef2f2; }
+
+    .draft-empty-state {
+      flex: 1; display: flex; flex-direction: column;
+      align-items: center; justify-content: center; color: #94a3b8; gap: 14px;
+    }
+    .draft-empty-state-icon { font-size: 38px; }
+    .draft-empty-state p { font-size: 14px; color: #64748b; }
+    .draft-empty-state small { font-size: 12px; }
+
+    /* Draft preview panel */
+    .draft-preview-panel {
+      border-left: 1px solid var(--line);
+      background: #fff;
+      overflow-y: auto;
+      min-width: 0;
+    }
+
+    /* ---- Monitor page ---- */
+    .monitor-wrap { max-width: 1000px; margin: 0 auto; padding: 0 36px 36px; }
+    @media (max-width: 760px) { .monitor-wrap { padding: 0 16px 24px; } }
+
+    .mon-stats-bar {
+      display: flex; align-items: center; gap: 12px;
+      background: #fff; border-radius: var(--radius-lg); border: 1px solid var(--line-2);
+      padding: 18px 24px; margin-bottom: 16px; flex-wrap: wrap;
+      box-shadow: var(--shadow-sm);
+    }
+    .mon-stat { flex: 1; min-width: 90px; text-align: center; }
+    .mon-stat + .mon-stat { border-left: 1px solid #f0f0f0; }
+    .mon-stat-value { font-size: 26px; font-weight: 800; color: var(--ink); line-height: 1; letter-spacing: -0.02em; }
+    .mon-stat-label { font-size: 11px; color: var(--muted); margin-top: 5px; font-weight: 600; text-transform: uppercase; letter-spacing: .05em; }
+    .mon-stat-value.green { color: var(--green); }
+    .mon-stat-value.amber { color: var(--orange); }
+
+    .mon-control { display: flex; flex-direction: column; align-items: flex-end; gap: 6px; margin-left: 16px; }
+    .mon-check-status { font-size: 12px; color: #666; white-space: nowrap; }
+
+    .mon-schedule {
+      display: flex; align-items: center; gap: 0;
+      background: #fff; border: 1px solid var(--line-2); border-radius: var(--radius);
+      overflow: hidden; margin-bottom: 16px; font-size: 12px;
+      box-shadow: var(--shadow-sm);
+    }
+    .ms-phase {
+      flex: 1; padding: 10px 6px; text-align: center;
+      border-right: 1px solid #e0e0e0;
+    }
+    .ms-phase:last-child { border-right: none; }
+    .ms-phase .ms-interval { font-size: 18px; font-weight: 800; color: #0a66c2; }
+    .ms-phase.ended .ms-interval { color: #ccc; }
+    .ms-phase .ms-window { color: #888; margin-top: 2px; font-size: 11px; }
+    .ms-phase.current { background: #eff6ff; }
+    .ms-phase.current .ms-interval { color: #0a66c2; }
+    .ms-phase.current .ms-window { color: #3b82f6; font-weight: 600; }
+
+    .mon-section-title {
+      font-size: 12px; font-weight: 700; text-transform: uppercase; letter-spacing: .06em;
+      color: #999; margin: 18px 0 8px;
+    }
+
+    .mon-post-card {
+      background: #fff; border: 1px solid var(--line-2); border-radius: var(--radius-lg);
+      margin-bottom: 16px; overflow: hidden;
+      box-shadow: var(--shadow-sm);
+      transition: box-shadow .15s;
+    }
+    .mon-post-card:hover { box-shadow: var(--shadow-md); }
+    .mon-post-header {
+      padding: 14px 18px 10px;
+      display: flex; align-items: flex-start; justify-content: space-between; gap: 12px;
+    }
+    .mon-post-text {
+      font-size: 13.5px; color: #1a1a1a; line-height: 1.55;
+      display: -webkit-box; -webkit-line-clamp: 2; -webkit-box-orient: vertical; overflow: hidden;
+      flex: 1;
+    }
+    .mon-badge {
+      padding: 3px 10px; border-radius: 20px; font-size: 11px; font-weight: 700;
+      white-space: nowrap; flex-shrink: 0;
+    }
+    .mon-badge.active { background: #d1fae5; color: #065f46; }
+    .mon-badge.ended  { background: #f3f4f6; color: #6b7280; }
+
+    .mon-post-meta {
+      padding: 0 18px 8px;
+      font-size: 11.5px; color: #999;
+      display: flex; gap: 14px; flex-wrap: wrap; align-items: center;
+    }
+    .mon-post-meta span { display: flex; align-items: center; gap: 4px; }
+
+    .mon-timeline {
+      margin: 0 18px 12px;
+      display: flex; gap: 0; border: 1px solid #e8e8e8; border-radius: 6px; overflow: hidden; font-size: 11px;
+    }
+    .mt-seg {
+      flex: 1; padding: 5px 8px; text-align: center; color: #aaa;
+      border-right: 1px solid #e8e8e8;
+    }
+    .mt-seg:last-child { border-right: none; }
+    .mt-seg.mt-current { background: #eff6ff; color: #0a66c2; font-weight: 700; }
+    .mt-seg.mt-done { background: #f0fdf4; color: #15803d; }
+    .mt-seg.mt-future { color: #ccc; }
+    .mt-seg.mt-ended { color: #ccc; }
+
+    .mon-comments-wrap { border-top: 1px solid #f0f0f0; }
+    .mon-comments-header {
+      padding: 10px 18px; font-size: 12px; font-weight: 700; color: #555;
+      display: flex; align-items: center; justify-content: space-between;
+    }
+    .mon-comment-thread {
+      border-top: 1px solid #f5f5f5; padding: 12px 18px;
+    }
+    .mon-comment-row {
+      display: flex; gap: 10px; align-items: flex-start;
+    }
+    .mon-avatar {
+      width: 32px; height: 32px; border-radius: 50%; background: #e0e7ff;
+      color: #4338ca; font-weight: 700; font-size: 13px;
+      display: flex; align-items: center; justify-content: center; flex-shrink: 0;
+    }
+    .mon-comment-body { flex: 1; min-width: 0; }
+    .mon-commenter-name { font-size: 13px; font-weight: 600; color: #1a1a1a; }
+    .mon-comment-text { font-size: 13px; color: #444; margin-top: 2px; line-height: 1.45; }
+    .mon-reply-row {
+      margin-top: 8px; padding: 8px 12px;
+      background: #f0f6ff; border-radius: 8px; border-left: 3px solid #0a66c2;
+      display: flex; gap: 10px; align-items: flex-start;
+    }
+    .mon-reply-label { font-size: 11px; font-weight: 700; color: #0a66c2; white-space: nowrap; margin-top: 1px; }
+    .mon-reply-text { font-size: 12.5px; color: #1e3a5f; line-height: 1.45; }
+    .mon-reply-time { font-size: 10.5px; color: #aaa; margin-top: 4px; }
+
+    .mon-empty {
+      padding: 48px 28px; text-align: center; color: var(--muted);
+      background: #fff; border: 1px solid var(--line-2); border-radius: var(--radius-lg);
+      box-shadow: var(--shadow-sm);
+    }
+    .mon-empty p { margin-top: 6px; }
+    .mon-empty small { display: block; margin-top: 6px; }
+    .mon-empty-icon { font-size: 32px; margin-bottom: 10px; }
+    .mon-empty p { font-size: 14px; margin-bottom: 4px; }
+    .mon-empty small { font-size: 12px; }
+    /* ---- Analytics page ---- */
+    .analytics-wrap { max-width: 1200px; margin: 0 auto; padding: 0 36px 36px; }
+    @media (max-width: 760px) { .analytics-wrap { padding: 0 16px 24px; } }
+
+    .an-stats-row {
+      display: grid; grid-template-columns: repeat(4, 1fr); gap: 16px; margin-bottom: 20px;
+    }
+    @media (max-width: 920px) { .an-stats-row { grid-template-columns: repeat(2, 1fr); } }
+
+    .an-stat-card {
+      position: relative; overflow: hidden;
+      background: #fff; border-radius: var(--radius-lg); border: 1px solid var(--line-2);
+      box-shadow: var(--shadow-md); padding: 22px 24px 20px;
+      display: flex; align-items: flex-start; justify-content: space-between; gap: 14px;
+      transition: transform .15s ease, box-shadow .15s ease;
+    }
+    .an-stat-card:hover { transform: translateY(-2px); box-shadow: 0 10px 28px rgba(15,23,42,.08), 0 3px 8px rgba(15,23,42,.05); }
+    .an-stat-card::before {
+      content: ''; position: absolute; left: 0; top: 0; bottom: 0; width: 5px;
+      background: var(--accent, var(--orange));
+    }
+    .an-stat-body { display: flex; flex-direction: column; gap: 6px; min-width: 0; }
+    .an-stat-icon {
+      font-size: 24px; line-height: 1; flex-shrink: 0;
+      width: 44px; height: 44px; border-radius: 14px;
+      background: var(--accent-soft, #fff4ee); color: var(--ink);
+      display: flex; align-items: center; justify-content: center;
+    }
+    .an-stat-value { font-size: 36px; font-weight: 800; color: var(--ink); letter-spacing: -0.03em; line-height: 1; }
+    .an-stat-label { font-size: 13px; font-weight: 700; color: var(--ink-2); }
+    .an-stat-sub { font-size: 12px; color: var(--muted); }
+
+    .an-grid {
+      display: grid; grid-template-columns: 1fr 1fr; gap: 18px;
+    }
+    @media (max-width: 920px) { .an-grid { grid-template-columns: 1fr; } }
+
+    /* Reuse the chunky compose-card look for analytics cards */
+    .an-card {
+      background: #fff; border-radius: var(--radius-lg); border: 1px solid var(--line-2);
+      box-shadow: var(--shadow-md); overflow: hidden;
+    }
+    .an-card-header {
+      padding: 18px 24px; border-bottom: 1px solid var(--line);
+      display: flex; align-items: center; justify-content: space-between; gap: 12px;
+      font-size: 15px; font-weight: 700; color: var(--ink); letter-spacing: -0.01em;
+    }
+    .an-card-header-icon {
+      width: 32px; height: 32px; border-radius: 10px;
+      display: inline-flex; align-items: center; justify-content: center;
+      font-size: 16px; flex-shrink: 0;
+    }
+    .an-card-header-left { display: flex; align-items: center; gap: 12px; min-width: 0; }
+    .an-card-body { padding: 22px 24px 24px; }
+
+    .an-type-row { display: flex; align-items: center; gap: 14px; margin-bottom: 16px; }
+    .an-type-row:last-child { margin-bottom: 0; }
+    .an-type-label { font-size: 13.5px; font-weight: 600; color: var(--ink-2); min-width: 110px; }
+    .an-bar-wrap { flex: 1; background: #f1f4f8; border-radius: 999px; height: 14px; overflow: hidden; }
+    .an-bar { height: 100%; border-radius: 999px; transition: width .6s ease; min-width: 4px; }
+    .an-type-count {
+      font-size: 12px; font-weight: 800; color: var(--ink); min-width: 32px; text-align: center;
+      background: #f1f4f8; border-radius: 999px; padding: 3px 10px;
+    }
+
+    .an-time-grid { display: grid; grid-template-columns: repeat(6, 1fr); gap: 10px; }
+    .an-time-cell {
+      border-radius: 14px; padding: 14px 6px; text-align: center;
+      font-weight: 700; color: var(--ink-2); background: #f1f4f8;
+      transition: transform .15s ease;
+      display: flex; flex-direction: column; gap: 4px; align-items: center; justify-content: center;
+      min-height: 72px;
+    }
+    .an-time-cell:hover { transform: translateY(-2px); }
+    .an-time-label { font-size: 11px; font-weight: 600; opacity: .85; }
+    .an-time-legend {
+      display: flex; flex-wrap: wrap; align-items: center; justify-content: center;
+      gap: 8px; font-size: 12px; color: var(--muted); margin-top: 16px;
+    }
+    .an-time-legend span.pill {
+      color: #fff; border-radius: 999px; padding: 3px 10px; font-weight: 700; font-size: 11px;
+    }
+
+    .an-post-row {
+      display: flex; align-items: flex-start; gap: 14px; padding: 14px 0;
+      border-bottom: 1px solid var(--line);
+    }
+    .an-post-row:last-child { border-bottom: none; padding-bottom: 0; }
+    .an-post-row:first-child { padding-top: 0; }
+    .an-post-dot {
+      width: 10px; height: 10px; border-radius: 50%; flex-shrink: 0; margin-top: 5px;
+    }
+    .an-post-body { flex: 1; min-width: 0; }
+    .an-post-text {
+      font-size: 13.5px; color: var(--ink); line-height: 1.5; font-weight: 500;
+      display: -webkit-box; -webkit-line-clamp: 2; -webkit-box-orient: vertical; overflow: hidden;
+    }
+    .an-post-meta { font-size: 11.5px; color: var(--muted); margin-top: 3px; display: flex; gap: 12px; flex-wrap: wrap; }
+    .an-post-type-badge {
+      font-size: 10px; padding: 2px 8px; border-radius: 999px;
+      background: #fef3c7; color: #92400e; font-weight: 700;
+    }
+    .an-empty {
+      padding: 48px 20px; text-align: center;
+    }
+    .an-empty-title { font-size:16px; font-weight:700; color:var(--ink); margin-top:14px; }
+    .an-empty-sub { font-size:13px; color:var(--muted); margin-top:6px; }
+
+    .toast {
+      position: fixed; bottom: 28px; right: 28px; background: var(--ink); color: #fff;
+      padding: 14px 22px; border-radius: 999px; font-size: 14px; font-weight: 600;
+      box-shadow: 0 12px 32px rgba(15,23,42,.35); z-index: 999;
+      animation: slideIn .2s ease;
+      display: none;
+    }
+    .toast.show { display: block; }
+    .toast.error { background: #b91c1c; }
+    @keyframes slideIn { from { transform: translateY(12px); opacity: 0; } to { transform: translateY(0); opacity: 1; } }
+  </style>
+</head>
+<body>
+<div class="app-shell">
+
+<nav class="nav">
+  <a class="nav-logo" href="#">
+    <span class="nav-logo-mark">
+      <svg width="28" height="28" viewBox="0 0 28 28" fill="none">
+        <rect width="28" height="28" rx="9" fill="url(#logoGrad)"/>
+        <path d="M9 19V12.5M9 9.5a.5.5 0 110 .01M13 19v-4.5c0-1.5 1-2.5 2.5-2.5s2.5 1 2.5 2.5V19" stroke="#fff" stroke-width="2.2" stroke-linecap="round" stroke-linejoin="round"/>
+        <defs>
+          <linearGradient id="logoGrad" x1="0" y1="0" x2="28" y2="28">
+            <stop offset="0" stop-color="#0a66c2"/>
+            <stop offset="1" stop-color="#084d94"/>
+          </linearGradient>
+        </defs>
+      </svg>
+    </span>
+    <span class="nav-logo-text">hotpost<span class="nav-logo-dot">.</span></span>
+  </a>
+  <div class="nav-tabs">
+    <span class="nav-tab active" data-page="composer">Schedule</span>
+    <span class="nav-tab" data-page="drafts">Drafts</span>
+    <span class="nav-tab" data-page="monitor">Replies</span>
+    <span class="nav-tab" data-page="analytics">Analytics</span>
+  </div>
+  <button id="authPill" class="auth-pill" onclick="connectLinkedIn()"><span class="auth-pill-text">Not connected</span></button>
+</nav>
+
+<!-- COMPOSE & SCHEDULE PAGE -->
+<div id="composer" class="page active">
+  <div class="page-hero">
+    <div class="page-hero-inner">
+      <div class="page-hero-text">
+        <span class="page-hero-dot"></span>
+        <h1>Write something <em>worth</em> reading.</h1>
+        <p>Craft your post, preview live, hit publish — or schedule for peak time. ✨</p>
+      </div>
+      <div class="page-hero-art" aria-hidden="true">
+        <!-- Floating composer illustration -->
+        <svg width="320" height="220" viewBox="0 0 320 220" fill="none" xmlns="http://www.w3.org/2000/svg">
+          <!-- Soft background blob -->
+          <ellipse cx="195" cy="120" rx="115" ry="95" fill="#fff5f0"/>
+          <ellipse cx="80"  cy="60"  rx="38"  ry="34"  fill="#e0f2fe"/>
+          <!-- Floating dotted line orbit -->
+          <path d="M40 180 Q160 30 290 100" stroke="#ffb89c" stroke-width="2" stroke-dasharray="3 6" stroke-linecap="round" fill="none"/>
+          <!-- Calendar card -->
+          <g transform="translate(36 90) rotate(-8)">
+            <rect x="0" y="0" width="78" height="84" rx="12" fill="#fff" stroke="#0f172a" stroke-width="2.5"/>
+            <rect x="0" y="0" width="78" height="20" rx="12" fill="#ff6a3d"/>
+            <rect x="0" y="14" width="78" height="6" fill="#ff6a3d"/>
+            <circle cx="18" cy="10" r="2.5" fill="#fff"/>
+            <circle cx="60" cy="10" r="2.5" fill="#fff"/>
+            <rect x="10" y="32" width="14" height="12" rx="3" fill="#fde68a"/>
+            <rect x="32" y="32" width="14" height="12" rx="3" fill="#fff" stroke="#cbd5e1" stroke-width="1.5"/>
+            <rect x="54" y="32" width="14" height="12" rx="3" fill="#fff" stroke="#cbd5e1" stroke-width="1.5"/>
+            <rect x="10" y="52" width="14" height="12" rx="3" fill="#fff" stroke="#cbd5e1" stroke-width="1.5"/>
+            <rect x="32" y="52" width="14" height="12" rx="3" fill="#5eead4"/>
+            <rect x="54" y="52" width="14" height="12" rx="3" fill="#fff" stroke="#cbd5e1" stroke-width="1.5"/>
+          </g>
+          <!-- Document card with text lines -->
+          <g transform="translate(135 50) rotate(4)">
+            <rect x="0" y="0" width="120" height="140" rx="14" fill="#fff" stroke="#0f172a" stroke-width="2.5"/>
+            <circle cx="18" cy="20" r="8" fill="#0a66c2"/>
+            <rect x="32" y="14" width="50" height="5" rx="2.5" fill="#0f172a"/>
+            <rect x="32" y="23" width="34" height="4" rx="2" fill="#94a3b8"/>
+            <rect x="14" y="42" width="92" height="5" rx="2.5" fill="#cbd5e1"/>
+            <rect x="14" y="54" width="74" height="5" rx="2.5" fill="#cbd5e1"/>
+            <rect x="14" y="66" width="86" height="5" rx="2.5" fill="#cbd5e1"/>
+            <rect x="14" y="78" width="58" height="5" rx="2.5" fill="#cbd5e1"/>
+            <!-- like/comment row -->
+            <circle cx="22" cy="108" r="9" fill="#ff6a3d"/>
+            <path d="M18 109l3 3 5-6" stroke="#fff" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"/>
+            <rect x="38" y="103" width="30" height="10" rx="5" fill="#f1f5f9"/>
+            <rect x="74" y="103" width="30" height="10" rx="5" fill="#f1f5f9"/>
+          </g>
+          <!-- Paper plane -->
+          <g transform="translate(245 30) rotate(20)">
+            <path d="M0 14 L40 0 L26 30 L20 18 Z" fill="#0a66c2"/>
+            <path d="M0 14 L20 18 L26 30 Z" fill="#084d94"/>
+          </g>
+          <!-- Sparkle stars -->
+          <path d="M275 145 l3 6 6 1 -4 4 1 6 -6-3 -6 3 1-6 -4-4 6-1z" fill="#fbbf24"/>
+          <path d="M30 30 l2 4 4 .5 -3 3 .8 4 -3.8-2 -3.8 2 .8-4 -3-3 4-.5z" fill="#fbbf24"/>
+          <circle cx="295" cy="60" r="4" fill="#5eead4"/>
+          <circle cx="60" cy="170" r="5" fill="#c7d2fe"/>
+          <circle cx="288" cy="180" r="3" fill="#ff6a3d"/>
+        </svg>
+      </div>
+    </div>
+  </div>
+  <div class="main-wrap">
+
+    <!-- Left: Compose card + Queue -->
+    <div>
+      <!-- Single merged compose card -->
+      <div class="compose-card">
+        <!-- Header row: title + action buttons -->
+        <div class="compose-header">
+          <div style="font-weight:800;font-size:16px;color:var(--ink);letter-spacing:-0.01em">Compose Post</div>
+          <div class="compose-actions">
+            <button class="btn btn-publish btn-sm" onclick="publishNowDraft()">⚡ Publish Now</button>
+            <button class="btn btn-orange btn-sm" onclick="addToQueue()">＋ Schedule</button>
+            <button class="btn btn-ghost btn-sm" onclick="clearDraft()" title="Clear all">✕</button>
+          </div>
+        </div>
+
+        <!-- Settings row: post type + post as + date -->
+        <div class="compose-settings-row">
+          <div class="compose-setting-group">
+            <span class="compose-setting-label">Post Type</span>
+            <select class="compose-setting-input" id="postType" onchange="onTypeChange()">
+              <option value="text">📝 Text Post</option>
+              <option value="image">🖼️ Image Post</option>
+              <option value="carousel">📑 Carousel (PDF)</option>
+              <option value="mixed">🖼️📝 Image + Text</option>
+            </select>
+          </div>
+          <div class="compose-setting-group">
+            <span class="compose-setting-label">
+              Post As <a href="#" onclick="refreshPages(event)" class="post-as-refresh" title="Re-scan your pages">↻</a>
+            </span>
+            <select class="compose-setting-input" id="postAsSelect">
+              <option value="">👤 Personal profile (default)</option>
+            </select>
+          </div>
+          <div class="compose-setting-group">
+            <span class="compose-setting-label">Schedule Date &amp; Time</span>
+            <input type="datetime-local" id="scheduleTime" class="compose-setting-input">
+          </div>
+        </div>
+
+        <!-- Toolbar -->
+        <div class="editor-toolbar">
+          <button class="tb-btn" title="Bold" onclick="applyFmt('bold')"><b>B</b></button>
+          <button class="tb-btn" title="Italic" onclick="applyFmt('italic')"><i>I</i></button>
+          <button class="tb-btn" title="Bold Italic" onclick="applyFmt('bolditalic')"><b><i>BI</i></b></button>
+          <div class="tb-sep"></div>
+          <button class="tb-btn" title="Bullet" onclick="insertText('• ')">•</button>
+          <button class="tb-btn" title="Numbered list" onclick="insertNumberedItem()">1.</button>
+          <button class="tb-btn" title="Line break" onclick="insertText('\n\n')">↵↵</button>
+          <button class="tb-btn" title="Em dash" onclick="insertText(' — ')">—</button>
+          <div class="tb-sep"></div>
+          <button class="tb-btn" onclick="insertEmoji('🔥')">🔥</button>
+          <button class="tb-btn" onclick="insertEmoji('💡')">💡</button>
+          <button class="tb-btn" onclick="insertEmoji('✅')">✅</button>
+          <button class="tb-btn" onclick="insertEmoji('👇')">👇</button>
+          <button class="tb-btn" onclick="insertEmoji('🚀')">🚀</button>
+          <div class="tb-sep"></div>
+          <button id="undoBtn" class="tb-btn" title="Undo" onclick="undo()" style="opacity:0.35" disabled>↩</button>
+          <button id="redoBtn" class="tb-btn" title="Redo" onclick="redo()" style="opacity:0.35" disabled>↪</button>
+        </div>
+
+        <!-- Editor -->
+        <div
+          id="editor"
+          contenteditable="true"
+          data-placeholder="Start writing your LinkedIn post..."
+          spellcheck="true"
+          oninput="onEditorInput()"
+          onkeydown="handleEditorKey(event)"
+        ></div>
+        <div class="char-bar">
+          <span id="charCount" class="count">0 / 3000</span>
+          <span id="hookHint" style="color:#888;font-size:11px"></span>
+        </div>
+
+        <!-- Hashtags + CTA inline -->
+        <div class="compose-inline-fields">
+          <div>
+            <label class="compose-setting-label" style="display:block;margin-bottom:4px">Hashtags</label>
+            <input type="text" id="hashtags" class="compose-setting-input" style="width:100%" placeholder="#AI, #LinkedIn, #Growth" oninput="onEditorInput()">
+          </div>
+          <div>
+            <label class="compose-setting-label" style="display:block;margin-bottom:4px">Call to Action</label>
+            <input type="text" id="cta" class="compose-setting-input" style="width:100%" placeholder="What do you think? 👇" oninput="onEditorInput()">
+          </div>
+        </div>
+
+        <!-- Media zone (shown for non-text types) -->
+        <div id="mediaZoneWrap" style="display:none;padding:0 22px 16px">
+          <label class="compose-setting-label" style="display:block;margin-bottom:6px">Media Files</label>
+          <div class="drop-zone" id="dropZone">
+            <input type="file" id="mediaFiles" multiple accept="image/*,.pdf" onchange="onFilePick()">
+            <div>Drop images or PDF here, or <u>click to browse</u></div>
+            <div class="file-list" id="fileList"></div>
+          </div>
+        </div>
+      </div>
+
+      <!-- Queue -->
+      <div class="card">
+        <div class="queue-header">
+          <h2>Post Queue</h2>
+          <button class="btn btn-ghost btn-sm" onclick="loadQueue()">↻ Refresh</button>
+        </div>
+        <!-- Upcoming/active posts -->
+        <div id="queueList"><div class="queue-empty">No posts queued yet</div></div>
+
+        <!-- Published history -->
+        <div class="hist-section card" style="margin-top:14px">
+          <div class="hist-header" onclick="toggleHist('published')">
+            <div class="hist-title">
+              ✅ Published History
+              <span class="hist-count green" id="pubCount">0</span>
+            </div>
+            <div class="hist-toggle">
+              <button class="btn-clear-all" onclick="event.stopPropagation();clearAll('published')">🗑 Clear all</button>
+              <span id="pubArrow">▼</span>
+            </div>
+          </div>
+          <div class="hist-body" id="histPublished"></div>
+        </div>
+
+        <!-- Failed posts -->
+        <div class="hist-section card" style="margin-top:14px;margin-bottom:20px">
+          <div class="hist-header" onclick="toggleHist('failed')">
+            <div class="hist-title">
+              ❌ Failed Posts
+              <span class="hist-count red" id="failCount">0</span>
+            </div>
+            <div class="hist-toggle">
+              <button class="btn-clear-all" onclick="event.stopPropagation();clearAll('failed')">🗑 Clear all</button>
+              <span id="failArrow">▼</span>
+            </div>
+          </div>
+          <div class="hist-body" id="histFailed"></div>
+        </div>
+      </div>
+    </div>
+
+    <!-- Right: Live preview -->
+    <div class="preview-sticky">
+      <div class="card">
+        <div class="card-header">Live Preview</div>
+        <div class="li-post">
+          <div class="li-header">
+            <div class="li-avatar" id="previewAvatar">?</div>
+            <div>
+              <div class="li-name" id="previewName">Loading…</div>
+              <div class="li-sub" id="previewHeadline">Connecting to LinkedIn…</div>
+            </div>
+          </div>
+          <div class="li-text" id="previewText"><span style="color:#bbb">Your post will appear here as you type...</span></div>
+          <div id="previewMedia" style="display:none" class="li-media-wrap"></div>
+          <div class="li-stats">
+            <span>👍 ❤️ 0</span>
+            <span>0 comments</span>
+          </div>
+          <div class="li-actions">
+            <div class="li-action">👍 Like</div>
+            <div class="li-action">💬 Comment</div>
+            <div class="li-action">🔄 Repost</div>
+            <div class="li-action">✈️ Send</div>
+          </div>
+        </div>
+        <div class="preview-meta" id="previewMeta">
+          <span><span class="dot-ok">●</span> 0 chars</span>
+          <span>No "see more"</span>
+        </div>
+      </div>
+    </div>
+
+  </div>
+</div>
+
+<!-- DRAFTS PAGE -->
+<div id="drafts" class="page">
+  <div class="page-hero">
+    <div class="page-hero-inner">
+      <div class="page-hero-text">
+        <span class="page-hero-dot" style="background:var(--mint)"></span>
+        <h1>Park your <em>ideas</em>, polish them later.</h1>
+        <p>Capture half-baked thoughts without a deadline. Come back when the words are ready. 📝</p>
+      </div>
+      <div class="page-hero-art" aria-hidden="true">
+        <svg width="300" height="200" viewBox="0 0 300 200" fill="none">
+          <ellipse cx="160" cy="110" rx="110" ry="85" fill="#ecfdf5"/>
+          <ellipse cx="60" cy="50" rx="32" ry="28" fill="#fff5f0"/>
+          <!-- Stack of papers -->
+          <g transform="translate(60 80) rotate(-6)">
+            <rect x="0" y="6" width="100" height="110" rx="10" fill="#fef3c7" stroke="#0f172a" stroke-width="2.5"/>
+          </g>
+          <g transform="translate(80 70) rotate(2)">
+            <rect x="0" y="0" width="100" height="118" rx="10" fill="#fff" stroke="#0f172a" stroke-width="2.5"/>
+            <rect x="12" y="14" width="50" height="6" rx="3" fill="#0f172a"/>
+            <rect x="12" y="28" width="76" height="4" rx="2" fill="#cbd5e1"/>
+            <rect x="12" y="38" width="60" height="4" rx="2" fill="#cbd5e1"/>
+            <rect x="12" y="48" width="70" height="4" rx="2" fill="#cbd5e1"/>
+            <rect x="12" y="58" width="40" height="4" rx="2" fill="#cbd5e1"/>
+            <!-- pencil mark / scribble -->
+            <path d="M14 78 Q30 72 50 80 T88 76" stroke="#ff6a3d" stroke-width="2.5" stroke-linecap="round" fill="none"/>
+            <circle cx="86" cy="96" r="10" fill="#5eead4"/>
+            <path d="M81 96 l3 3 6-6" stroke="#0f172a" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"/>
+          </g>
+          <!-- Giant pencil -->
+          <g transform="translate(180 30) rotate(35)">
+            <rect x="0" y="0" width="14" height="100" rx="2" fill="#fbbf24" stroke="#0f172a" stroke-width="2.5"/>
+            <rect x="0" y="0" width="14" height="18" fill="#ff6a3d" stroke="#0f172a" stroke-width="2.5"/>
+            <path d="M0 100 L7 116 L14 100 Z" fill="#fff" stroke="#0f172a" stroke-width="2.5" stroke-linejoin="round"/>
+            <path d="M5 110 L7 116 L9 110 Z" fill="#0f172a"/>
+          </g>
+          <!-- Idea lightbulb -->
+          <g transform="translate(30 30)">
+            <circle cx="14" cy="14" r="12" fill="#fde68a" stroke="#0f172a" stroke-width="2.2"/>
+            <path d="M10 22 h8 M11 26 h6" stroke="#0f172a" stroke-width="2" stroke-linecap="round"/>
+            <path d="M14 4 L14 0 M22 8 L25 5 M6 8 L3 5" stroke="#fbbf24" stroke-width="2" stroke-linecap="round"/>
+          </g>
+          <!-- Decorative stars -->
+          <path d="M260 140 l2 4 4 .5 -3 3 .8 4 -3.8-2 -3.8 2 .8-4 -3-3 4-.5z" fill="#fbbf24"/>
+          <circle cx="270" cy="50" r="5" fill="#c7d2fe"/>
+          <circle cx="40" cy="170" r="4" fill="#5eead4"/>
+        </svg>
+      </div>
+    </div>
+  </div>
+  <div class="drafts-page-wrap">
+
+    <div class="drafts-layout">
+
+      <!-- Left: draft list -->
+      <div class="drafts-sidebar">
+        <div class="drafts-sidebar-header">
+          <span class="drafts-sidebar-title">Drafts <span class="drafts-count" id="draftsCount">0</span></span>
+          <button class="btn btn-orange btn-sm" onclick="newDraft()">+ New</button>
+        </div>
+        <div class="drafts-list" id="draftList"></div>
+      </div>
+
+      <!-- Right: editor -->
+      <div class="draft-editor-panel" id="draftEditorPanel">
+
+        <!-- Empty state -->
+        <div class="draft-empty-state" id="draftEmptyState">
+          <svg width="200" height="160" viewBox="0 0 200 160" fill="none">
+            <ellipse cx="100" cy="90" rx="90" ry="62" fill="#fff5f0"/>
+            <g transform="translate(50 30)">
+              <rect x="0" y="8" width="90" height="108" rx="10" fill="#fef3c7" stroke="#0f172a" stroke-width="2.5"/>
+            </g>
+            <g transform="translate(64 22)">
+              <rect x="0" y="0" width="90" height="112" rx="10" fill="#fff" stroke="#0f172a" stroke-width="2.5"/>
+              <rect x="12" y="14" width="50" height="6" rx="3" fill="#0f172a"/>
+              <rect x="12" y="28" width="64" height="4" rx="2" fill="#cbd5e1"/>
+              <rect x="12" y="38" width="50" height="4" rx="2" fill="#cbd5e1"/>
+              <rect x="12" y="48" width="58" height="4" rx="2" fill="#cbd5e1"/>
+              <path d="M12 70 Q30 64 50 72 T78 68" stroke="#ff6a3d" stroke-width="2.5" stroke-linecap="round" fill="none"/>
+              <circle cx="68" cy="92" r="10" fill="#5eead4"/>
+              <path d="M63 92 l3 3 6-6" stroke="#0f172a" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"/>
+            </g>
+            <g transform="translate(150 20) rotate(28)">
+              <rect x="0" y="0" width="11" height="80" rx="2" fill="#fbbf24" stroke="#0f172a" stroke-width="2"/>
+              <rect x="0" y="0" width="11" height="14" fill="#ff6a3d" stroke="#0f172a" stroke-width="2"/>
+              <path d="M0 80 L5.5 92 L11 80 Z" fill="#fff" stroke="#0f172a" stroke-width="2" stroke-linejoin="round"/>
+            </g>
+            <path d="M30 30 l2 4 4 .5 -3 3 .8 4 -3.8-2 -3.8 2 .8-4 -3-3 4-.5z" fill="#fbbf24"/>
+            <circle cx="170" cy="120" r="4" fill="#c7d2fe"/>
+            <circle cx="22" cy="120" r="5" fill="#5eead4"/>
+          </svg>
+          <p style="font-weight:700;color:var(--ink);font-size:16px">Your napkin for big ideas</p>
+          <small style="color:var(--muted);max-width:280px;text-align:center;line-height:1.5">Pick a draft from the list, or start a fresh one — save it now, perfect it later.</small>
+          <button class="btn btn-orange" onclick="newDraft()" style="margin-top:10px">+ New Draft</button>
+        </div>
+
+        <!-- Editor -->
+        <div id="draftEditorInner" style="display:none;flex:1;flex-direction:column;overflow:hidden">
+
+          <!-- Top: title + type + action buttons + autosave -->
+          <div class="draft-editor-topbar">
+            <input
+              type="text"
+              class="draft-title-input"
+              id="draftTitle"
+              placeholder="Untitled draft…"
+              oninput="draftFieldChanged()"
+            >
+            <select class="draft-type-select" id="draftType" onchange="onDraftTypeChange()">
+              <option value="text">📝 Text</option>
+              <option value="image">🖼️ Image</option>
+              <option value="carousel">📑 Carousel</option>
+              <option value="mixed">🖼️ Mixed</option>
+            </select>
+            <select class="draft-type-select" id="draftPostAs" onchange="draftFieldChanged()" title="Post as">
+              <option value="">👤 Personal</option>
+            </select>
+            <span class="draft-autosave" id="draftAutosave">—</span>
+            <div class="draft-top-actions">
+              <button class="btn btn-ghost btn-sm" onclick="sendDraftToComposer()" title="Open in Schedule tab">Open in Write →</button>
+              <button class="btn btn-orange btn-sm" onclick="scheduleDraftModal()">📅 Schedule</button>
+            </div>
+          </div>
+
+          <!-- Toolbar -->
+          <div class="draft-toolbar">
+            <button class="tb-btn" title="Bold" onclick="draftFmt('bold')"><b>B</b></button>
+            <button class="tb-btn" title="Italic" onclick="draftFmt('italic')"><i>I</i></button>
+            <button class="tb-btn" title="Bold Italic" onclick="draftFmt('bolditalic')"><b><i>BI</i></b></button>
+            <div class="tb-sep"></div>
+            <button class="tb-btn" title="Bullet" onclick="draftInsert('• ')">•</button>
+            <button class="tb-btn" title="Numbered" onclick="draftInsertNum()">1.</button>
+            <button class="tb-btn" title="Line break" onclick="draftInsert('\n\n')">↵↵</button>
+            <button class="tb-btn" title="Em dash" onclick="draftInsert(' — ')">—</button>
+            <div class="tb-sep"></div>
+            <button class="tb-btn" onclick="draftInsert('🔥')">🔥</button>
+            <button class="tb-btn" onclick="draftInsert('💡')">💡</button>
+            <button class="tb-btn" onclick="draftInsert('✅')">✅</button>
+            <button class="tb-btn" onclick="draftInsert('👇')">👇</button>
+            <button class="tb-btn" onclick="draftInsert('🚀')">🚀</button>
+            <div class="tb-sep"></div>
+            <button class="tb-btn" id="draftUndoBtn" title="Undo (Ctrl+Z)" onclick="draftUndo()" disabled>↩</button>
+            <button class="tb-btn" id="draftRedoBtn" title="Redo (Ctrl+Y)" onclick="draftRedo()" disabled>↪</button>
+          </div>
+
+          <!-- Content -->
+          <div class="draft-editor-body">
+            <div
+              id="draftEditor"
+              class="draft-content-area"
+              contenteditable="true"
+              data-placeholder="Write your LinkedIn post here…"
+              oninput="onDraftInput()"
+              onkeydown="handleDraftKey(event)"
+            ></div>
+
+            <!-- File upload zone (shown for non-text types) -->
+            <div class="draft-media-zone" id="draftMediaZone">
+              <div class="draft-drop-zone" id="draftDropZone">
+                <input type="file" id="draftFiles" multiple accept="image/*,.pdf" onchange="onDraftFilePick()">
+                📎 Drop files here or click to attach
+              </div>
+              <div class="draft-attached-files" id="draftAttachedFiles"></div>
+            </div>
+          </div>
+
+          <!-- Hashtags + CTA -->
+          <div class="draft-meta-fields">
+            <div class="draft-field">
+              <label>Hashtags</label>
+              <input type="text" id="draftHashtags" placeholder="ai, growth, leadership" oninput="draftFieldChanged()">
+            </div>
+            <div class="draft-field">
+              <label>Call to Action</label>
+              <input type="text" id="draftCta" placeholder="What do you think?" oninput="draftFieldChanged()">
+            </div>
+          </div>
+
+          <!-- Footer -->
+          <div class="draft-footer">
+            <span class="draft-char-count" id="draftCharCount">0 / 3000</span>
+            <div class="draft-footer-actions">
+              <button class="preview-toggle-btn btn btn-ghost btn-sm" onclick="toggleDraftPreview()" title="Show preview">👁 Preview</button>
+              <button class="btn-del-draft" onclick="deleteDraft()" title="Delete this draft">🗑 Delete</button>
+            </div>
+          </div>
+
+        </div>
+      </div>
+
+      <!-- Draft preview -->
+      <div class="draft-preview-panel" id="draftPreviewPanel">
+        <div style="padding:14px 16px 0;display:flex;align-items:center;justify-content:space-between">
+          <span style="font-size:12px;font-weight:700;color:var(--muted);text-transform:uppercase;letter-spacing:.5px">Live Preview</span>
+          <button class="preview-close-btn btn btn-ghost btn-sm" onclick="toggleDraftPreview()">✕ Close</button>
+        </div>
+        <div class="li-post" style="padding-bottom:8px">
+          <div class="li-header">
+            <div class="li-avatar" id="draftPreviewAvatar">?</div>
+            <div>
+              <div class="li-name" id="draftPreviewName">Loading…</div>
+              <div class="li-sub" id="draftPreviewHeadline">Connecting to LinkedIn…</div>
+            </div>
+          </div>
+          <div class="li-text" id="draftPreviewText"><span style="color:#bbb">Start typing to see preview…</span></div>
+          <div id="draftPreviewMedia" style="display:none" class="li-media-wrap"></div>
+          <div class="li-stats">
+            <span>👍 ❤️ 0</span>
+            <span>0 comments</span>
+          </div>
+          <div class="li-actions">
+            <div class="li-action">👍 Like</div>
+            <div class="li-action">💬 Comment</div>
+            <div class="li-action">🔄 Repost</div>
+            <div class="li-action">✈️ Send</div>
+          </div>
+        </div>
+        <div class="preview-meta" id="draftPreviewMeta">
+          <span><span class="dot-ok">●</span> 0 chars</span>
+          <span>No "see more"</span>
+        </div>
+      </div>
+
+    </div>
+  </div>
+</div>
+
+<!-- Schedule draft modal -->
+<div id="scheduleDraftOverlay" style="display:none;position:fixed;inset:0;background:rgba(0,0,0,.4);z-index:200;display:none;align-items:center;justify-content:center">
+  <div style="background:#fff;border-radius:14px;padding:28px 32px;width:360px;box-shadow:0 8px 32px rgba(0,0,0,.18)">
+    <div style="font-size:16px;font-weight:700;margin-bottom:16px">📅 Schedule this post</div>
+    <label style="font-size:12px;font-weight:600;color:#64748b;display:block;margin-bottom:6px">DATE &amp; TIME</label>
+    <input type="datetime-local" id="draftScheduleTime" style="width:100%;padding:9px 12px;border:1px solid #e2e8f0;border-radius:8px;font-size:14px;margin-bottom:16px">
+    <div style="display:flex;gap:10px;justify-content:flex-end">
+      <button class="btn btn-ghost btn-sm" onclick="closeScheduleModal()">Cancel</button>
+      <button class="btn btn-orange" onclick="submitDraftSchedule()">Schedule Post</button>
+    </div>
+  </div>
+</div>
+
+<!-- COMMENT MONITOR PAGE -->
+<div id="monitor" class="page">
+  <div class="page-hero">
+    <div class="page-hero-inner">
+      <div class="page-hero-text">
+        <span class="page-hero-dot" style="background:var(--lavender)"></span>
+        <h1>Reply <em>warmly</em>, never miss a beat.</h1>
+        <p>Auto-monitor your last 48 hours of posts and respond to every comment — even while you're asleep. 💬</p>
+      </div>
+      <div class="page-hero-art" aria-hidden="true">
+        <svg width="300" height="200" viewBox="0 0 300 200" fill="none">
+          <ellipse cx="150" cy="105" rx="110" ry="85" fill="#f5f3ff"/>
+          <!-- Big speech bubble -->
+          <g transform="translate(40 50)">
+            <path d="M0 12 Q0 0 12 0 L108 0 Q120 0 120 12 L120 60 Q120 72 108 72 L40 72 L26 90 L28 72 L12 72 Q0 72 0 60 Z" fill="#fff" stroke="#0f172a" stroke-width="2.5" stroke-linejoin="round"/>
+            <rect x="14" y="16" width="60" height="5" rx="2.5" fill="#0f172a"/>
+            <rect x="14" y="28" width="92" height="4" rx="2" fill="#cbd5e1"/>
+            <rect x="14" y="38" width="76" height="4" rx="2" fill="#cbd5e1"/>
+            <rect x="14" y="48" width="58" height="4" rx="2" fill="#cbd5e1"/>
+            <!-- heart -->
+            <path d="M88 54 c-3-4 -10-1 -10 4 c0 6 10 10 10 10 s10-4 10-10 c0-5 -7-8 -10-4z" fill="#ff6a3d"/>
+          </g>
+          <!-- Small reply bubble -->
+          <g transform="translate(180 110)">
+            <path d="M0 12 Q0 0 12 0 L72 0 Q84 0 84 12 L84 36 Q84 48 72 48 L52 48 L40 62 L42 48 L12 48 Q0 48 0 36 Z" fill="#5eead4" stroke="#0f172a" stroke-width="2.5" stroke-linejoin="round"/>
+            <rect x="12" y="14" width="48" height="4" rx="2" fill="#0f172a"/>
+            <rect x="12" y="24" width="36" height="4" rx="2" fill="#0f172a" opacity=".5"/>
+            <rect x="12" y="32" width="42" height="4" rx="2" fill="#0f172a" opacity=".5"/>
+          </g>
+          <!-- Hearts floating -->
+          <path d="M192 30 c-4-5 -12-1 -12 5 c0 7 12 12 12 12 s12-5 12-12 c0-6 -8-10 -12-5z" fill="#ff6a3d" opacity=".9"/>
+          <path d="M268 70 c-2-3 -7-0.5 -7 3 c0 4 7 7 7 7 s7-3 7-7 c0-3.5 -5-6 -7-3z" fill="#ff6a3d" opacity=".7"/>
+          <!-- Stars and dots -->
+          <path d="M30 30 l2 4 4 .5 -3 3 .8 4 -3.8-2 -3.8 2 .8-4 -3-3 4-.5z" fill="#fbbf24"/>
+          <path d="M275 155 l2 4 4 .5 -3 3 .8 4 -3.8-2 -3.8 2 .8-4 -3-3 4-.5z" fill="#fbbf24"/>
+          <circle cx="285" cy="40" r="4" fill="#c7d2fe"/>
+          <circle cx="20" cy="170" r="5" fill="#5eead4"/>
+          <circle cx="170" cy="180" r="3" fill="#ff6a3d"/>
+        </svg>
+      </div>
+    </div>
+  </div>
+  <div class="monitor-wrap">
+
+    <!-- Stats + trigger bar -->
+    <div class="mon-stats-bar">
+      <div class="mon-stat">
+        <div class="mon-stat-value" id="statReplies">—</div>
+        <div class="mon-stat-label">Replies Sent</div>
+      </div>
+      <div class="mon-stat">
+        <div class="mon-stat-value green" id="statActive">—</div>
+        <div class="mon-stat-label">Posts Active</div>
+      </div>
+      <div class="mon-stat">
+        <div class="mon-stat-value" id="statLastCheck">—</div>
+        <div class="mon-stat-label">Last Checked</div>
+      </div>
+      <div class="mon-stat">
+        <div class="mon-stat-value green" id="statAutoLabel">ON</div>
+        <div class="mon-stat-label">Auto-Monitor</div>
+      </div>
+      <div class="mon-control">
+        <button class="btn btn-orange" id="checkNowBtn" onclick="checkNow()">⚡ Check Now</button>
+        <span class="mon-check-status" id="checkNowStatus"></span>
+      </div>
+    </div>
+
+    <!-- Schedule phase legend -->
+    <div class="mon-schedule">
+      <div class="ms-phase" id="phase0">
+        <div class="ms-interval">1h</div>
+        <div class="ms-window">0 – 3 h after post</div>
+      </div>
+      <div class="ms-phase" id="phase1">
+        <div class="ms-interval">3h</div>
+        <div class="ms-window">3 – 9 h after post</div>
+      </div>
+      <div class="ms-phase" id="phase2">
+        <div class="ms-interval">6h</div>
+        <div class="ms-window">9 – 48 h after post</div>
+      </div>
+      <div class="ms-phase ended" id="phase3">
+        <div class="ms-interval">—</div>
+        <div class="ms-window">After 48 h · stopped</div>
+      </div>
+    </div>
+
+    <!-- Post cards -->
+    <div class="mon-section-title" id="monSectionTitle"></div>
+    <div id="monitorPostList"></div>
+
+  </div>
+</div>
+
+</div><!-- /.app-shell -->
+
+<!-- ANALYTICS PAGE -->
+<div id="analytics" class="page">
+  <div class="page-hero">
+    <div class="page-hero-inner">
+      <div class="page-hero-text">
+        <span class="page-hero-dot" style="background:var(--yellow)"></span>
+        <h1>See what's <em>working</em> for you.</h1>
+        <p>Track your publishing activity, spot patterns, and double down on what lands. 📊</p>
+      </div>
+      <div class="page-hero-art" aria-hidden="true">
+        <svg width="300" height="200" viewBox="0 0 300 200" fill="none">
+          <ellipse cx="155" cy="110" rx="110" ry="82" fill="#fef9ee"/>
+          <!-- Bar chart -->
+          <rect x="50" y="130" width="24" height="50" rx="6" fill="#fbbf24"/>
+          <rect x="84" y="100" width="24" height="80" rx="6" fill="#ff6a3d"/>
+          <rect x="118" y="115" width="24" height="65" rx="6" fill="#5eead4"/>
+          <rect x="152" y="88" width="24" height="92" rx="6" fill="#0a66c2"/>
+          <rect x="186" y="110" width="24" height="70" rx="6" fill="#c7d2fe"/>
+          <rect x="220" y="95" width="24" height="85" rx="6" fill="#fbcfe8"/>
+          <!-- X axis -->
+          <line x1="40" y1="180" x2="260" y2="180" stroke="#0f172a" stroke-width="2.5" stroke-linecap="round"/>
+          <!-- Trend line -->
+          <path d="M62 155 L96 125 L130 140 L164 113 L198 135 L232 120" stroke="#ff6a3d" stroke-width="2.5" stroke-linecap="round" stroke-linejoin="round" fill="none" stroke-dasharray="4 3"/>
+          <!-- Stars -->
+          <path d="M268 60 l2 4 4 .5 -3 3 .8 4 -3.8-2 -3.8 2 .8-4 -3-3 4-.5z" fill="#fbbf24"/>
+          <circle cx="30" cy="90" r="5" fill="#5eead4"/>
+          <circle cx="282" cy="140" r="4" fill="#ff6a3d"/>
+          <path d="M25 150 l1.5 3 3 .4 -2.3 2.2 .6 3 -2.8-1.5 -2.8 1.5 .6-3 -2.3-2.2 3-.4z" fill="#c7d2fe"/>
+        </svg>
+      </div>
+    </div>
+  </div>
+
+  <div class="analytics-wrap">
+    <!-- Summary stats -->
+    <div class="an-stats-row" id="anStatsRow">
+      <!-- Populated by JS -->
+    </div>
+
+    <!-- Two-column grid -->
+    <div class="an-grid">
+      <!-- Post type breakdown -->
+      <div class="an-card">
+        <div class="an-card-header">
+          <div class="an-card-header-left">
+            <span class="an-card-header-icon" style="background:#fff4ee;color:#ff6a3d">🎨</span>
+            <span>Post Type Breakdown</span>
+          </div>
+        </div>
+        <div class="an-card-body" id="anTypeBreakdown">
+          <div style="color:var(--muted-2);font-size:13px">Loading…</div>
+        </div>
+      </div>
+
+      <!-- Publishing times -->
+      <div class="an-card">
+        <div class="an-card-header">
+          <div class="an-card-header-left">
+            <span class="an-card-header-icon" style="background:#ecfdf5;color:#0f9d7a">⏰</span>
+            <span>Publishing Time Patterns</span>
+          </div>
+        </div>
+        <div class="an-card-body" id="anTimePatterns">
+          <div style="color:var(--muted-2);font-size:13px">Loading…</div>
+        </div>
+      </div>
+
+      <!-- Per-page breakdown (only renders if user has page posts) -->
+      <div class="an-card" id="anPageBreakdownCard" style="grid-column: 1 / -1; display: none">
+        <div class="an-card-header">
+          <div class="an-card-header-left">
+            <span class="an-card-header-icon" style="background:#f3e8ff;color:#7c3aed">🏢</span>
+            <span>Posts per Identity</span>
+          </div>
+        </div>
+        <div class="an-card-body" id="anPageBreakdown">
+          <div style="color:var(--muted-2);font-size:13px">Loading…</div>
+        </div>
+      </div>
+
+      <!-- Recent posts timeline -->
+      <div class="an-card" style="grid-column: 1 / -1">
+        <div class="an-card-header">
+          <div class="an-card-header-left">
+            <span class="an-card-header-icon" style="background:#fef3c7;color:#a16207">📜</span>
+            <span>Published Posts</span>
+          </div>
+        </div>
+        <div class="an-card-body" id="anPostsList">
+          <div style="color:var(--muted-2);font-size:13px">Loading…</div>
+        </div>
+      </div>
+    </div>
+  </div>
+</div>
+
+<div id="toast" class="toast"></div>
+
+<script>
+// ─── Undo / Redo history stack ────────────────────────────────────────────────
+const HISTORY_MAX = 10;
+let history  = [''];   // stack of editor innerText snapshots
+let histIdx  = 0;      // current position in stack
+let histLock = false;  // prevent saving while restoring
+let histTimer = null;
+
+function saveHistory() {
+  if (histLock) return;
+  const current = document.getElementById('editor').innerText || '';
+  if (current === history[histIdx]) return;  // no change
+
+  // Drop any redo states ahead of current position
+  history = history.slice(0, histIdx + 1);
+  history.push(current);
+
+  // Keep max 10 entries (plus the initial empty)
+  if (history.length > HISTORY_MAX + 1) history.shift();
+  else histIdx++;
+
+  updateUndoButtons();
+}
+
+function debouncedSave() {
+  clearTimeout(histTimer);
+  histTimer = setTimeout(saveHistory, 600);
+}
+
+function undo() {
+  if (histIdx <= 0) return;
+  clearTimeout(histTimer);
+  histIdx--;
+  restoreHistory();
+}
+
+function redo() {
+  if (histIdx >= history.length - 1) return;
+  clearTimeout(histTimer);
+  histIdx++;
+  restoreHistory();
+}
+
+function restoreHistory() {
+  histLock = true;
+  const editor = document.getElementById('editor');
+  editor.innerText = history[histIdx];
+  // Move cursor to end
+  const range = document.createRange();
+  const sel   = window.getSelection();
+  range.selectNodeContents(editor);
+  range.collapse(false);
+  sel.removeAllRanges();
+  sel.addRange(range);
+  histLock = false;
+  onEditorInput();
+  updateUndoButtons();
+}
+
+function updateUndoButtons() {
+  const undoBtn = document.getElementById('undoBtn');
+  const redoBtn = document.getElementById('redoBtn');
+  const remaining = histIdx;   // how many undos available
+
+  undoBtn.disabled = histIdx <= 0;
+  redoBtn.disabled = histIdx >= history.length - 1;
+  undoBtn.style.opacity = undoBtn.disabled ? '0.35' : '1';
+  redoBtn.style.opacity = redoBtn.disabled ? '0.35' : '1';
+
+  // Show count badge
+  undoBtn.title = remaining > 0 ? `Undo (${remaining} available) — Ctrl+Z` : 'Nothing to undo';
+  redoBtn.title = (history.length - 1 - histIdx) > 0
+    ? `Redo (${history.length - 1 - histIdx} available) — Ctrl+Y`
+    : 'Nothing to redo';
+}
+
+// ─── Unicode bold/italic conversion ───────────────────────────────────────────
+const BOLD_MAP   = Array.from('ABCDEFGHIJKLMNOPQRSTUVWXYZabcdefghijklmnopqrstuvwxyz0123456789');
+const BOLD_CHARS = Array.from('𝗔𝗕𝗖𝗗𝗘𝗙𝗚𝗛𝗜𝗝𝗞𝗟𝗠𝗡𝗢𝗣𝗤𝗥𝗦𝗧𝗨𝗩𝗪𝗫𝗬𝗭𝗮𝗯𝗰𝗱𝗲𝗳𝗴𝗵𝗶𝗷𝗸𝗹𝗺𝗻𝗼𝗽𝗾𝗿𝘀𝘁𝘂𝘃𝘄𝘅𝘆𝘇𝟬𝟭𝟮𝟯𝟰𝟱𝟲𝟳𝟴𝟵');
+const ITALIC_MAP  = Array.from('ABCDEFGHIJKLMNOPQRSTUVWXYZabcdefghijklmnopqrstuvwxyz');
+const ITALIC_CHARS= Array.from('𝘈𝘉𝘊𝘋𝘌𝘍𝘎𝘏𝘐𝘑𝘒𝘓𝘔𝘕𝘖𝘗𝘘𝘙𝘚𝘛𝘜𝘝𝘞𝘟𝘠𝘡𝘢𝘣𝘤𝘥𝘦𝘧𝘨𝘩𝘪𝘫𝘬𝘭𝘮𝘯𝘰𝘱𝘲𝘳𝘴𝘵𝘶𝘷𝘸𝘹𝘺𝘻');
+const BI_MAP      = Array.from('ABCDEFGHIJKLMNOPQRSTUVWXYZabcdefghijklmnopqrstuvwxyz');
+const BI_CHARS    = Array.from('𝘼𝘽𝘾𝘿𝙀𝙁𝙂𝙃𝙄𝙅𝙆𝙇𝙈𝙉𝙊𝙋𝙌𝙍𝙎𝙏𝙐𝙑𝙒𝙓𝙔𝙕𝙖𝙗𝙘𝙙𝙚𝙛𝙜𝙝𝙞𝙟𝙠𝙡𝙢𝙣𝙤𝙥𝙦𝙧𝙨𝙩𝙪𝙫𝙬𝙭𝙮𝙯');
+
+// Reverse lookup: any formatted char → ASCII base
+const TO_ASCII = new Map();
+BOLD_MAP.forEach((c, i)   => TO_ASCII.set(BOLD_CHARS[i],   c));
+ITALIC_MAP.forEach((c, i) => TO_ASCII.set(ITALIC_CHARS[i], c));
+BI_MAP.forEach((c, i)     => TO_ASCII.set(BI_CHARS[i],     c));
+
+// Strip any existing formatting back to plain ASCII before re-applying
+function normalizeToAscii(text) {
+  return Array.from(text.replace(/̲/g, ''))   // remove underline combining char
+    .map(ch => TO_ASCII.get(ch) ?? ch).join('');
+}
+
+function unicodeConvert(text, map, converted) {
+  return Array.from(text).map(ch => {
+    const i = map.indexOf(ch);
+    return i !== -1 ? converted[i] : ch;
+  }).join('');
+}
+
+function applyFmt(type) {
+  const sel = window.getSelection();
+  if (!sel.rangeCount) return;
+  const range = sel.getRangeAt(0);
+  const selected = range.toString();
+  if (!selected) return;
+
+  // Always normalize first so stacking works (bold → italic, italic → bold, etc.)
+  const base = normalizeToAscii(selected);
+
+  let result;
+  if (type === 'bold')       result = unicodeConvert(base, BOLD_MAP, BOLD_CHARS);
+  if (type === 'italic')     result = unicodeConvert(base, ITALIC_MAP, ITALIC_CHARS);
+  if (type === 'bolditalic') result = unicodeConvert(base, BI_MAP, BI_CHARS);
+  if (type === 'underline')  result = Array.from(base).map(c => c + '̲').join('');
+
+  range.deleteContents();
+  range.insertNode(document.createTextNode(result));
+  sel.removeAllRanges();
+  saveHistory();
+  onEditorInput();
+}
+
+function insertText(str) {
+  const el = document.getElementById('editor');
+  el.focus();
+  const sel = window.getSelection();
+  if (sel.rangeCount) {
+    const range = sel.getRangeAt(0);
+    range.deleteContents();
+    range.insertNode(document.createTextNode(str));
+    range.collapse(false);
+    sel.removeAllRanges();
+    sel.addRange(range);
+  }
+  saveHistory();
+  onEditorInput();
+}
+
+function insertEmoji(emoji) { insertText(emoji); }
+
+let bulletNum = 1;
+function insertNumberedItem() {
+  insertText(`${bulletNum}. `);
+  bulletNum++;
+}
+
+function handleEditorKey(e) {
+  if ((e.ctrlKey || e.metaKey) && e.key === 'z' && !e.shiftKey) {
+    e.preventDefault(); undo(); return;
+  }
+  if ((e.ctrlKey || e.metaKey) && (e.key === 'y' || (e.key === 'z' && e.shiftKey))) {
+    e.preventDefault(); redo(); return;
+  }
+}
+
+// ─── Editor input → live preview ─────────────────────────────────────────────
+const PREVIEW_CUT = 210;
+
+// Per-preview expand state
+let schedPreviewExpanded = false;
+let draftPreviewExpanded = false;
+
+// Store the full text so expand/collapse doesn't need to recompute
+let _schedFullText = '';
+let _draftFullText = '';
+
+function getEditorText() {
+  const el = document.getElementById('editor');
+  return el.innerText || '';
+}
+
+function renderPreviewText(containerId, fullText, expanded) {
+  const el = document.getElementById(containerId);
+  if (!el) return;
+
+  // Remove any existing show-less button right after el
+  const nextSib = el.nextElementSibling;
+  if (nextSib && nextSib.classList.contains('li-show-less')) nextSib.remove();
+
+  if (!fullText.trim()) {
+    const hint = containerId === 'previewText'
+      ? 'Your post will appear here as you type...'
+      : 'Start typing to see preview…';
+    el.innerHTML = `<span style="color:#bbb">${hint}</span>`;
+    return;
+  }
+
+  // Render text as <p> blocks with <br> for single-newline breaks.
+  // This matches LinkedIn's actual feed DOM, so paragraph spacing in our
+  // preview equals what users will see in their feed.
+  function toLinkedInHTML(text) {
+    return text
+      .split(/\n{2,}/)                                // paragraphs separated by blank line(s)
+      .map(para => '<p>' + escHtml(para).replace(/\n/g, '<br>') + '</p>')
+      .join('');
+  }
+
+  if (fullText.length <= PREVIEW_CUT || expanded) {
+    // Full text — show "show less" link if it was expanded
+    el.innerHTML = toLinkedInHTML(fullText);
+    if (fullText.length > PREVIEW_CUT && expanded) {
+      const less = document.createElement('span');
+      less.className = 'li-show-less';
+      less.textContent = '…show less';
+      less.onclick = () => {
+        if (containerId === 'previewText') {
+          schedPreviewExpanded = false;
+          renderPreviewText('previewText', _schedFullText, false);
+          updatePreviewMeta('previewMeta', _schedFullText);
+        } else {
+          draftPreviewExpanded = false;
+          renderPreviewText('draftPreviewText', _draftFullText, false);
+          updatePreviewMeta('draftPreviewMeta', _draftFullText);
+        }
+      };
+      el.insertAdjacentElement('afterend', less);
+    }
+  } else {
+    // Truncated — append clickable "... see more" inside the LAST paragraph
+    // so the link sits inline with the text, exactly like LinkedIn's feed
+    const truncatedText = fullText.slice(0, PREVIEW_CUT);
+    const onclickAttr = containerId === 'previewText'
+      ? 'schedPreviewExpanded=true;renderPreviewText(\'previewText\',_schedFullText,true);updatePreviewMeta(\'previewMeta\',_schedFullText)'
+      : 'draftPreviewExpanded=true;renderPreviewText(\'draftPreviewText\',_draftFullText,true);updatePreviewMeta(\'draftPreviewMeta\',_draftFullText)';
+    const seeMore = `<span class="li-see-more" onclick="${onclickAttr}">... see more</span>`;
+    let html = toLinkedInHTML(truncatedText);
+    // Inject "see more" into the last <p>
+    html = html.replace(/<\/p>$/, seeMore + '</p>');
+    el.innerHTML = html;
+  }
+}
+
+function updatePreviewMeta(metaId, fullText) {
+  const len = fullText.length;
+  const hasSeeMore = fullText.length > PREVIEW_CUT;
+  const metaEl = document.getElementById(metaId);
+  if (!metaEl) return;
+  metaEl.innerHTML = `
+    <span><span class="${len > 3000 ? 'dot-warn' : 'dot-ok'}">●</span> ${len} chars</span>
+    <span>${hasSeeMore ? '⚠️ Truncated at 210 chars' : '✅ Fully visible'}</span>
+    <span>~${Math.max(1, Math.ceil(fullText.split(/\s+/).filter(Boolean).length / 200))} min read</span>
+  `;
+}
+
+function onEditorInput() {
+  debouncedSave();
+  const raw = getEditorText();
+  const hashtags = document.getElementById('hashtags').value
+    .split(',').map(h => h.trim()).filter(Boolean)
+    .map(h => h.startsWith('#') ? h : '#' + h).join(' ');
+  const cta = document.getElementById('cta').value.trim();
+
+  let full = raw;
+  if (cta) full += '\n\n' + cta;
+  if (hashtags) full += '\n\n' + hashtags;
+
+  _schedFullText = full;
+
+  const len = full.length;
+  const countEl = document.getElementById('charCount');
+  countEl.textContent = `${len} / 3000`;
+  countEl.className = 'count' + (len > 3000 ? ' over' : len > 2600 ? ' warn' : '');
+
+  // Hook hint
+  const firstLine = raw.split('\n')[0];
+  const hintEl = document.getElementById('hookHint');
+  hintEl.textContent = firstLine.length > 0 ? `Hook: "${firstLine.slice(0, 40)}${firstLine.length > 40 ? '…' : ''}"` : '';
+
+  // Preview text
+  renderPreviewText('previewText', full, schedPreviewExpanded);
+
+  // Meta bar
+  updatePreviewMeta('previewMeta', full);
+
+  // Media preview
+  const files = [...(document.getElementById('mediaFiles').files || [])];
+  updateMediaPreview(files);
+}
+
+function escHtml(s) {
+  const d = document.createElement('div');
+  d.textContent = s;
+  return d.innerHTML.replace(/\n/g, '<br>');
+}
+
+// Single source of truth for post-type pills.
+// Used everywhere a post type needs to be displayed — queue, published list,
+// failed list, drafts list — so the colors stay consistent.
+const POST_TYPE_META = {
+  text:     { label: 'Text',     emoji: '📝', cls: 't-text' },
+  image:    { label: 'Image',    emoji: '🖼️', cls: 't-image' },
+  carousel: { label: 'Carousel', emoji: '📑', cls: 't-carousel' },
+  mixed:    { label: 'Mixed',    emoji: '🖼️', cls: 't-mixed' },
+  video:    { label: 'Video',    emoji: '🎬', cls: 't-video' }
+};
+function typeBadge(type) {
+  const meta = POST_TYPE_META[type] || POST_TYPE_META.text;
+  return `<span class="type-badge ${meta.cls}" title="${meta.label} post">${meta.emoji} ${meta.label}</span>`;
+}
+
+// Pill that shows "Post as <Page Name>" when a post/draft targets a Page.
+// Returns empty string for personal-profile posts so the UI doesn't clutter.
+function postAsBadge(post) {
+  if (!post?.postAsPageId || !post.postAsPageName) return '';
+  const name = escHtml(post.postAsPageName);
+  return `<span class="type-badge t-mixed" title="Posting as ${name}">🏢 ${name}</span>`;
+}
+
+function onTypeChange() {
+  const type = document.getElementById('postType').value;
+  document.getElementById('mediaZoneWrap').style.display = type !== 'text' ? 'block' : 'none';
+  onEditorInput();
+}
+
+function onFilePick() {
+  const files = [...document.getElementById('mediaFiles').files];
+  document.getElementById('fileList').textContent = files.map(f => f.name).join(', ');
+  updateMediaPreview(files);
+}
+
+let carCurrentPage = 0;
+let carTotalPages  = 0;
+
+async function renderPdfCarousel(file) {
+  pdfjsLib.GlobalWorkerOptions.workerSrc =
+    'https://cdnjs.cloudflare.com/ajax/libs/pdf.js/3.11.174/pdf.worker.min.js';
+
+  const url  = URL.createObjectURL(file);
+  const pdf  = await pdfjsLib.getDocument(url).promise;
+  const track = document.getElementById('carouselTrack');
+  if (!track) return;
+
+  track.innerHTML = '';
+  carTotalPages   = pdf.numPages;
+  carCurrentPage  = 0;
+
+  for (let i = 1; i <= pdf.numPages; i++) {
+    const page     = await pdf.getPage(i);
+    const viewport = page.getViewport({ scale: 1.2 });
+    const canvas   = document.createElement('canvas');
+    canvas.width   = viewport.width;
+    canvas.height  = viewport.height;
+    await page.render({ canvasContext: canvas.getContext('2d'), viewport }).promise;
+
+    const slide = document.createElement('div');
+    slide.className = 'li-carousel-slide';
+    slide.appendChild(canvas);
+    track.appendChild(slide);
+  }
+
+  updateCarNav();
+}
+
+function carNav(dir) {
+  const track = document.getElementById('carouselTrack');
+  if (!track) return;
+  carCurrentPage = Math.max(0, Math.min(carTotalPages - 1, carCurrentPage + dir));
+  const slideW = track.clientWidth;
+  track.scrollLeft = carCurrentPage * slideW;
+  updateCarNav();
+}
+
+function updateCarNav() {
+  const prev = document.getElementById('carPrev');
+  const next = document.getElementById('carNext');
+  const ctr  = document.getElementById('carCounter');
+  if (!prev) return;
+  prev.disabled = carCurrentPage === 0;
+  next.disabled = carCurrentPage === carTotalPages - 1;
+  ctr.textContent = `${carCurrentPage + 1} / ${carTotalPages}`;
+}
+
+function updateMediaPreview(files) {
+  const wrap = document.getElementById('previewMedia');
+  const type = document.getElementById('postType').value;
+
+  if (!files.length || type === 'text') {
+    wrap.style.display = 'none';
+    wrap.innerHTML = '';
+    return;
+  }
+  wrap.style.display = 'block';
+
+  // ── PDF carousel — LinkedIn-style left→right page viewer ──
+  if (type === 'carousel') {
+    wrap.innerHTML = `
+      <div class="li-carousel" id="liCarousel">
+        <div class="li-carousel-track" id="carouselTrack">
+          <div class="li-carousel-loading">Rendering pages…</div>
+        </div>
+        <button class="li-carousel-arrow prev" id="carPrev" onclick="carNav(-1)" disabled>‹</button>
+        <button class="li-carousel-arrow next" id="carNext" onclick="carNav(1)">›</button>
+        <div class="li-carousel-counter" id="carCounter">— / —</div>
+      </div>`;
+    renderPdfCarousel(files[0]);
+    return;
+  }
+
+  // ── Images ──
+  const imgs = files.filter(f => f.type.startsWith('image/'));
+  if (!imgs.length) { wrap.innerHTML = '<div class="li-media-placeholder">📎 File attached</div>'; return; }
+
+  if (imgs.length === 1) {
+    // Single image — natural size, no crop
+    wrap.innerHTML = '<div class="li-media-single"><img id="singleImg" alt="preview"></div>';
+    const reader = new FileReader();
+    reader.onload = e => document.getElementById('singleImg').src = e.target.result;
+    reader.readAsDataURL(imgs[0]);
+    return;
+  }
+
+  // Multiple images — grid with equal-height thumbnails
+  const gridCls = imgs.length === 2 ? 'g2' : 'g3';
+  wrap.innerHTML = `<div class="li-media-grid ${gridCls}" id="imgGrid"></div>`;
+  const grid = document.getElementById('imgGrid');
+
+  // Show max 3 slots; last slot gets "+N" overlay if more files
+  const slots = Math.min(imgs.length, 3);
+  imgs.slice(0, slots).forEach((f, i) => {
+    const thumb = document.createElement('div');
+    thumb.className = 'thumb' + (gridCls === 'g3' && i === 0 ? ' g3-main' : '');
+    const img = document.createElement('img');
+    img.alt = f.name;
+    thumb.appendChild(img);
+
+    if (i === slots - 1 && imgs.length > slots) {
+      const ov = document.createElement('div');
+      ov.className = 'more-overlay';
+      ov.textContent = `+${imgs.length - slots + 1}`;
+      thumb.appendChild(ov);
+    }
+
+    const reader = new FileReader();
+    reader.onload = e => img.src = e.target.result;
+    reader.readAsDataURL(f);
+    grid.appendChild(thumb);
+  });
+}
+
+// ─── Drag & drop on drop zone ─────────────────────────────────────────────────
+const dropZone = document.getElementById('dropZone');
+['dragenter','dragover'].forEach(ev => dropZone.addEventListener(ev, e => {
+  e.preventDefault(); dropZone.classList.add('drag-over');
+}));
+['dragleave','drop'].forEach(ev => dropZone.addEventListener(ev, e => {
+  e.preventDefault(); dropZone.classList.remove('drag-over');
+}));
+dropZone.addEventListener('drop', e => {
+  document.getElementById('mediaFiles').files = e.dataTransfer.files;
+  onFilePick();
+  onEditorInput();
+});
+
+// ─── Queue actions ────────────────────────────────────────────────────────────
+function buildFormData() {
+  const text = getEditorText();
+  const hashtags = document.getElementById('hashtags').value
+    .split(',').map(h => h.trim()).filter(Boolean);
+  const cta = document.getElementById('cta').value.trim();
+  const type = document.getElementById('postType').value;
+  const scheduleVal = document.getElementById('scheduleTime').value;
+
+  if (!text.trim()) { toast('Post content is empty', true); return null; }
+  if (!scheduleVal) { toast('Please set a schedule date & time', true); return null; }
+
+  const fd = new FormData();
+  fd.append('text', text);
+  fd.append('type', type);
+  fd.append('scheduledAt', new Date(scheduleVal).toISOString());
+  fd.append('hashtags', JSON.stringify(hashtags));
+  fd.append('cta', cta);
+
+  // Carry the chosen "Post as" identity through to the server
+  const postAs = getPostAsValue('postAsSelect');
+  if (postAs.id)   fd.append('postAsPageId',   postAs.id);
+  if (postAs.name) fd.append('postAsPageName', postAs.name);
+
+  const files = document.getElementById('mediaFiles').files;
+  for (const f of files) fd.append('media', f);
+
+  // Include pre-uploaded draft files if present
+  if (window._pendingDraftFiles) {
+    const pdf = window._pendingDraftFiles;
+    if (pdf.imagePaths?.length)  fd.append('draftImagePaths',  JSON.stringify(pdf.imagePaths));
+    if (pdf.documentPath)        fd.append('draftDocumentPath', pdf.documentPath);
+  }
+
+  return fd;
+}
+
+async function addToQueue() {
+  const fd = buildFormData();
+  if (!fd) return;
+
+  const res = await fetch('/api/posts/schedule', { method: 'POST', body: fd });
+  const data = await res.json();
+  if (res.ok) {
+    toast('Post added to queue ✓');
+    clearDraft();
+    loadQueue();
+  } else {
+    toast('Error: ' + data.error, true);
+  }
+}
+
+async function publishNowDraft() {
+  const text = getEditorText();
+  if (!text.trim()) { toast('Post content is empty', true); return; }
+
+  // Schedule for now and immediately publish
+  const fd = new FormData();
+  fd.append('text', text);
+  fd.append('type', document.getElementById('postType').value);
+  fd.append('scheduledAt', new Date().toISOString());
+  fd.append('hashtags', JSON.stringify(
+    document.getElementById('hashtags').value.split(',').map(h=>h.trim()).filter(Boolean)
+  ));
+  fd.append('cta', document.getElementById('cta').value.trim());
+
+  // Pipe the "Post as" identity through (default = personal profile)
+  const postAs = getPostAsValue('postAsSelect');
+  if (postAs.id)   fd.append('postAsPageId',   postAs.id);
+  if (postAs.name) fd.append('postAsPageName', postAs.name);
+
+  // Include any files dropped directly into the composer's media zone
+  const composerFiles = document.getElementById('mediaFiles').files;
+  for (const f of composerFiles) fd.append('media', f);
+
+  // CRITICAL: include files that were pre-uploaded as part of a draft.
+  // Without this, "Publish Now" on a draft-with-files would post empty
+  // media and LinkedIn would pop its native file picker.
+  if (window._pendingDraftFiles) {
+    const pdf = window._pendingDraftFiles;
+    if (pdf.imagePaths?.length)  fd.append('draftImagePaths',  JSON.stringify(pdf.imagePaths));
+    if (pdf.documentPath)        fd.append('draftDocumentPath', pdf.documentPath);
+  }
+
+  const createRes = await fetch('/api/posts/schedule', { method: 'POST', body: fd });
+  const post = await createRes.json();
+  if (!createRes.ok) { toast('Error: ' + post.error, true); return; }
+
+  const pubRes = await fetch(`/api/posts/${post.post.id}/publish-now`, { method: 'POST' });
+  const pubData = await pubRes.json();
+  if (pubRes.ok) {
+    toast('Published to LinkedIn ✓');
+    clearDraft();
+    loadQueue();
+  } else {
+    toast('Publish failed: ' + pubData.error, true);
+  }
+}
+
+function clearDraft() {
+  document.getElementById('editor').innerHTML = '';
+  document.getElementById('hashtags').value = '';
+  document.getElementById('cta').value = '';
+  document.getElementById('scheduleTime').value = '';
+  document.getElementById('mediaFiles').value = '';
+  document.getElementById('fileList').textContent = '';
+  document.getElementById('previewMedia').style.display = 'none';
+  document.getElementById('previewMedia').innerHTML = '';
+  // Clear any draft files that were loaded into the composer — otherwise
+  // they'd leak into the next post created from the Schedule tab.
+  window._pendingDraftFiles = null;
+  bulletNum = 1;
+  onEditorInput();
+}
+
+function clearEditor() {
+  if (confirm('Clear all post content?')) clearDraft();
+}
+
+async function loadQueue() {
+  const res   = await fetch('/api/posts');
+  const posts = await res.json();
+
+  const active    = posts.filter(p => ['scheduled','publishing'].includes(p.status))
+                         .sort((a,b) => new Date(a.scheduledAt) - new Date(b.scheduledAt));
+  const published = posts.filter(p => p.status === 'published')
+                         .sort((a,b) => new Date(b.publishedAt) - new Date(a.publishedAt));
+  const failed    = posts.filter(p => ['failed','cancelled'].includes(p.status))
+                         .sort((a,b) => new Date(b.scheduledAt) - new Date(a.scheduledAt));
+
+  // ── Upcoming queue ──
+  const qEl = document.getElementById('queueList');
+  if (!active.length) {
+    qEl.innerHTML = `<div class="queue-empty">
+      <svg width="180" height="140" viewBox="0 0 180 140" fill="none" style="display:block;margin:0 auto 14px">
+        <ellipse cx="90" cy="80" rx="80" ry="55" fill="#fff5f0"/>
+        <g transform="translate(40 30)">
+          <rect x="0" y="6" width="80" height="92" rx="10" fill="#fef3c7" stroke="#0f172a" stroke-width="2.5"/>
+        </g>
+        <g transform="translate(58 22)">
+          <rect x="0" y="0" width="80" height="96" rx="10" fill="#fff" stroke="#0f172a" stroke-width="2.5"/>
+          <rect x="10" y="14" width="46" height="5" rx="2.5" fill="#0f172a"/>
+          <rect x="10" y="26" width="60" height="4" rx="2" fill="#cbd5e1"/>
+          <rect x="10" y="36" width="50" height="4" rx="2" fill="#cbd5e1"/>
+          <circle cx="40" cy="68" r="14" fill="#5eead4" stroke="#0f172a" stroke-width="2.5"/>
+          <path d="M34 68 l5 5 9-9" stroke="#0f172a" stroke-width="2.5" stroke-linecap="round" stroke-linejoin="round"/>
+        </g>
+        <g transform="translate(140 50) rotate(15)">
+          <path d="M0 12 L36 0 L24 28 L18 16 Z" fill="#0a66c2"/>
+          <path d="M0 12 L18 16 L24 28 Z" fill="#084d94"/>
+        </g>
+        <path d="M155 100 l2 4 4 .5 -3 3 .8 4 -3.8-2 -3.8 2 .8-4 -3-3 4-.5z" fill="#fbbf24"/>
+        <circle cx="20" cy="40" r="4" fill="#ff6a3d"/>
+        <circle cx="160" cy="30" r="3" fill="#c7d2fe"/>
+      </svg>
+      <div style="font-size:15px;font-weight:700;color:var(--ink);margin-bottom:4px">Your queue is empty</div>
+      <div style="font-size:13px;color:var(--muted)">Compose a post above or grab one from your Drafts ✨</div>
+    </div>`;
+  } else {
+    qEl.innerHTML = active.map(p => `
+      <div class="q-item">
+        <span class="q-status q-${p.status}">
+          ${p.status === 'scheduled' ? '🕐 Scheduled' : '⏳ Posting…'}
+        </span>
+        <div>
+          <div class="q-text">${escHtml((p.text||'').slice(0,180))}</div>
+          <div class="q-meta">
+            ${typeBadge(p.type)} ${postAsBadge(p)} &nbsp;·&nbsp; 📅 ${new Date(p.scheduledAt).toLocaleString()}
+          </div>
+        </div>
+        <div class="q-actions">
+          ${p.status === 'scheduled' ? `
+            <button class="btn btn-ghost btn-sm" title="Publish now" onclick="qPublishNow('${p.id}')">⚡</button>
+            <button class="btn btn-danger btn-sm" title="Cancel" onclick="qCancel('${p.id}')">✕</button>
+          ` : ''}
+          ${p.status === 'publishing' ? `<span style="font-size:12px;color:#1d4ed8">Posting…</span>` : ''}
+        </div>
+      </div>`).join('');
+  }
+
+  // ── Published history ──
+  document.getElementById('pubCount').textContent = published.length;
+  document.getElementById('histPublished').innerHTML = published.length
+    ? published.map(p => `
+        <div class="q-item">
+          <span class="q-status q-published">✅ Published</span>
+          <div>
+            <div class="q-text">${escHtml((p.text||'').slice(0,200))}</div>
+            <div class="q-meta">
+              ${typeBadge(p.type)} ${postAsBadge(p)} &nbsp;·&nbsp; 📅 ${new Date(p.publishedAt||p.scheduledAt).toLocaleString()}
+              ${p.linkedinPostId
+                ? ` &nbsp;·&nbsp; <a href="https://www.linkedin.com/feed/update/urn:li:activity:${p.linkedinPostId}/" target="_blank" style="color:#0a66c2">View on LinkedIn ↗</a>`
+                : p.postAsPageId
+                  ? ` &nbsp;·&nbsp; <a href="https://www.linkedin.com/company/${p.postAsPageId}/posts/?feedView=all" target="_blank" style="color:#0a66c2">View on page ↗</a>`
+                  : ''}
+            </div>
+          </div>
+          <div class="q-actions">
+            <button class="btn-del" onclick="qRemove('${p.id}')" title="Remove from history">🗑</button>
+          </div>
+        </div>`).join('')
+    : '<div class="queue-empty">No published posts yet</div>';
+
+  // ── Failed / cancelled ──
+  document.getElementById('failCount').textContent = failed.length;
+  document.getElementById('histFailed').innerHTML = failed.length
+    ? failed.map(p => `
+        <div class="q-item">
+          <span class="q-status q-${p.status}">${p.status === 'failed' ? '❌ Failed' : '🚫 Cancelled'}</span>
+          <div>
+            <div class="q-text">${escHtml((p.text||'').slice(0,180))}</div>
+            <div class="q-meta">
+              ${typeBadge(p.type)} &nbsp;·&nbsp; 📅 ${new Date(p.scheduledAt).toLocaleString()}
+            </div>
+            ${p.error ? `<div class="q-error">⚠️ ${escHtml(p.error)}</div>` : ''}
+          </div>
+          <div class="q-actions">
+            ${p.status === 'failed' ? `
+              <button class="btn btn-outline btn-sm" onclick="qRetry('${p.id}')" title="Re-schedule and try again">↺ Retry</button>
+              <button class="btn btn-ghost btn-sm" onclick="qMarkPublished('${p.id}')" title="Post went live — just mark it done">✓ Live</button>
+            ` : ''}
+            <button class="btn-del" onclick="qRemove('${p.id}')" title="Delete">🗑</button>
+          </div>
+        </div>`).join('')
+    : '<div class="queue-empty">No failed posts</div>';
+}
+
+function toggleHist(section) {
+  const body  = document.getElementById(section === 'published' ? 'histPublished' : 'histFailed');
+  const arrow = document.getElementById(section === 'published' ? 'pubArrow' : 'failArrow');
+  const open  = body.classList.toggle('open');
+  arrow.textContent = open ? '▲' : '▼';
+}
+
+async function qRemove(id) {
+  await fetch(`/api/posts/${id}/remove`, { method: 'DELETE' });
+  loadQueue();
+}
+
+async function clearAll(status) {
+  if (!confirm(`Delete all ${status} posts? This cannot be undone.`)) return;
+  await fetch(`/api/posts/bulk/${status}`, { method: 'DELETE' });
+  toast(`All ${status} posts deleted`);
+  loadQueue();
+}
+
+async function qPublishNow(id) {
+  if (!confirm('Publish this post to LinkedIn now?')) return;
+  const res = await fetch(`/api/posts/${id}/publish-now`, { method: 'POST' });
+  const data = await res.json();
+  toast(res.ok ? 'Published ✓' : 'Error: ' + data.error, !res.ok);
+  loadQueue();
+}
+
+async function qCancel(id) {
+  if (!confirm('Cancel this scheduled post?')) return;
+  await fetch(`/api/posts/${id}`, { method: 'DELETE' });
+  loadQueue();
+}
+
+async function qRetry(id) {
+  if (!confirm('This will re-post to LinkedIn. Only use if the post did NOT go live.')) return;
+  await fetch(`/api/posts/${id}/retry`, { method: 'POST' });
+  toast('Post reset — will retry at next scheduler tick');
+  loadQueue();
+}
+
+async function qMarkPublished(id) {
+  await fetch(`/api/posts/${id}/mark-published`, { method: 'POST' });
+  toast('Marked as published ✓');
+  loadQueue();
+}
+
+// ─── Monitor: stats bar ───────────────────────────────────────────────────────
+async function loadMonitorStats() {
+  try {
+    const [statsRes, postsRes] = await Promise.all([
+      fetch('/api/monitor/stats'),
+      fetch('/api/monitor/posts')
+    ]);
+    const stats = await statsRes.json();
+    const posts = await postsRes.json();
+
+    document.getElementById('statReplies').textContent   = stats.totalReplies ?? 0;
+    document.getElementById('statActive').textContent    = stats.activePosts ?? 0;
+    document.getElementById('statAutoLabel').textContent = 'ON';
+
+    if (stats.lastCheckTime) {
+      const minsAgo = Math.round((Date.now() - new Date(stats.lastCheckTime).getTime()) / 60000);
+      document.getElementById('statLastCheck').textContent =
+        minsAgo < 1 ? 'just now' : minsAgo < 60 ? `${minsAgo}m ago` : `${Math.round(minsAgo/60)}h ago`;
+    } else {
+      document.getElementById('statLastCheck').textContent = 'never';
+    }
+
+    // Highlight schedule phase based on youngest active post
+    ['phase0','phase1','phase2','phase3'].forEach(id => {
+      document.getElementById(id).classList.remove('current');
+    });
+    if (posts.length) {
+      const youngest = Math.min(...posts.map(p => p.hoursAgo));
+      if      (youngest <= 3)  document.getElementById('phase0').classList.add('current');
+      else if (youngest <= 9)  document.getElementById('phase1').classList.add('current');
+      else if (youngest <= 48) document.getElementById('phase2').classList.add('current');
+      else                     document.getElementById('phase3').classList.add('current');
+    }
+
+    renderMonitorPosts(posts);
+  } catch(e) {
+    console.error('loadMonitorStats:', e);
+  }
+}
+
+// ─── Monitor: post cards ──────────────────────────────────────────────────────
+function renderMonitorPosts(posts) {
+  const container   = document.getElementById('monitorPostList');
+  const titleEl     = document.getElementById('monSectionTitle');
+
+  if (!posts.length) {
+    titleEl.textContent = '';
+    container.innerHTML = `
+      <div class="mon-empty">
+        <svg width="200" height="160" viewBox="0 0 200 160" fill="none" style="display:block;margin:0 auto 14px">
+          <ellipse cx="100" cy="90" rx="92" ry="62" fill="#f5f3ff"/>
+          <g transform="translate(30 40)">
+            <path d="M0 12 Q0 0 12 0 L90 0 Q102 0 102 12 L102 56 Q102 68 90 68 L36 68 L22 84 L24 68 L12 68 Q0 68 0 56 Z" fill="#fff" stroke="#0f172a" stroke-width="2.5" stroke-linejoin="round"/>
+            <rect x="14" y="16" width="50" height="5" rx="2.5" fill="#0f172a"/>
+            <rect x="14" y="28" width="74" height="4" rx="2" fill="#cbd5e1"/>
+            <rect x="14" y="38" width="60" height="4" rx="2" fill="#cbd5e1"/>
+            <path d="M76 50 c-3-4 -10-1 -10 4 c0 6 10 10 10 10 s10-4 10-10 c0-5 -7-8 -10-4z" fill="#ff6a3d"/>
+          </g>
+          <g transform="translate(130 80)">
+            <path d="M0 10 Q0 0 10 0 L56 0 Q66 0 66 10 L66 30 Q66 40 56 40 L40 40 L30 50 L32 40 L10 40 Q0 40 0 30 Z" fill="#5eead4" stroke="#0f172a" stroke-width="2.5" stroke-linejoin="round"/>
+            <rect x="10" y="12" width="38" height="3.5" rx="1.5" fill="#0f172a"/>
+            <rect x="10" y="22" width="28" height="3.5" rx="1.5" fill="#0f172a" opacity=".55"/>
+          </g>
+          <path d="M150 30 c-3-4 -10-1 -10 4 c0 6 10 10 10 10 s10-4 10-10 c0-5 -7-8 -10-4z" fill="#ff6a3d"/>
+          <path d="M22 130 l2 4 4 .5 -3 3 .8 4 -3.8-2 -3.8 2 .8-4 -3-3 4-.5z" fill="#fbbf24"/>
+          <circle cx="180" cy="50" r="4" fill="#c7d2fe"/>
+          <circle cx="40" cy="30" r="4" fill="#fbbf24"/>
+        </svg>
+        <p style="font-weight:700;color:var(--ink);font-size:16px">All quiet on the feed</p>
+        <small style="color:var(--muted)">Publish a post and we'll watch the conversation for you 👀</small>
+      </div>`;
+    return;
+  }
+
+  const active = posts.filter(p => p.monitorStatus === 'active');
+  const ended  = posts.filter(p => p.monitorStatus !== 'active');
+  titleEl.textContent = `${active.length} post${active.length !== 1 ? 's' : ''} being monitored`;
+
+  container.innerHTML = posts.map(p => {
+    const isActive = p.monitorStatus === 'active';
+    const timeAgo  = fmtAgo(p.hoursAgo);
+
+    // Per-post timeline segments
+    const h = p.hoursAgo;
+    const seg = (label, cls) =>
+      `<div class="mt-seg ${cls}">${label}</div>`;
+    const timelineHtml = `
+      <div class="mon-timeline">
+        ${seg('1h · 0–3h',    h < 3              ? 'mt-current' : 'mt-done')}
+        ${seg('3h · 3–9h',    h >= 3 && h < 9   ? 'mt-current' : h >= 9  ? 'mt-done' : 'mt-future')}
+        ${seg('6h · 9–48h',   h >= 9 && h < 48  ? 'mt-current' : h >= 48 ? 'mt-done' : 'mt-future')}
+        ${seg('Ended · 48h+', h >= 48            ? 'mt-ended'   : 'mt-future')}
+      </div>`;
+
+    // Last checked / next check info
+    let checkInfo = '';
+    if (p.lastCommentCheck) {
+      const minsAgo = Math.round((Date.now() - new Date(p.lastCommentCheck).getTime()) / 60000);
+      const lastStr = minsAgo < 1 ? 'just now' : minsAgo < 60 ? `${minsAgo}m ago` : `${Math.round(minsAgo/60)}h ago`;
+      checkInfo = `<span>🔍 Last checked ${lastStr}</span>`;
+      if (isActive && p.nextCheck) checkInfo += `<span>⏰ ${p.nextCheck}</span>`;
+    } else if (isActive) {
+      checkInfo = `<span>🔍 Not checked yet — click Check Now</span>`;
+    }
+
+    // Comment threads
+    let commentsHtml = '';
+    if (p.replies && p.replies.length) {
+      commentsHtml = `
+        <div class="mon-comments-wrap">
+          <div class="mon-comments-header">
+            <span>💬 ${p.replies.length} comment${p.replies.length !== 1 ? 's' : ''} replied to</span>
+          </div>
+          ${p.replies.map(r => {
+            const initial = (r.commenterName || '?')[0].toUpperCase();
+            return `
+            <div class="mon-comment-thread">
+              <div class="mon-comment-row">
+                <div class="mon-avatar">${initial}</div>
+                <div class="mon-comment-body">
+                  <div class="mon-commenter-name">${escHtml(r.commenterName)}</div>
+                  <div class="mon-comment-text">${escHtml(r.commentText)}</div>
+                  <div class="mon-reply-row">
+                    <span class="mon-reply-label">AI ↩</span>
+                    <div>
+                      <div class="mon-reply-text">${escHtml(r.reply)}</div>
+                      <div class="mon-reply-time">${new Date(r.repliedAt).toLocaleString()}</div>
+                    </div>
+                  </div>
+                </div>
+              </div>
+            </div>`;
+          }).join('')}
+        </div>`;
+    } else if (isActive) {
+      commentsHtml = `
+        <div class="mon-comments-wrap">
+          <div class="mon-comments-header" style="color:#bbb">
+            No comments yet — will auto-check on schedule
+          </div>
+        </div>`;
+    }
+
+    return `
+      <div class="mon-post-card">
+        <div class="mon-post-header">
+          <div class="mon-post-text">${escHtml((p.text||'').slice(0,160))}</div>
+          <span class="mon-badge ${isActive ? 'active' : 'ended'}">
+            ${isActive ? '● Monitoring' : '○ Ended'}
+          </span>
+        </div>
+        <div class="mon-post-meta">
+          <span>🕐 ${timeAgo}</span>
+          ${typeBadge(p.type)}
+          <span>📅 ${new Date(p.publishedAt).toLocaleString()}</span>
+          ${checkInfo}
+        </div>
+        ${isActive ? timelineHtml : ''}
+        ${commentsHtml}
+      </div>`;
+  }).join('');
+}
+
+function fmtAgo(hoursAgo) {
+  if (hoursAgo < 1) return `${Math.round(hoursAgo * 60)}m ago`;
+  if (hoursAgo < 24) return `${hoursAgo}h ago`;
+  return `${(hoursAgo / 24).toFixed(1)}d ago`;
+}
+
+// ─── Monitor: check now ───────────────────────────────────────────────────────
+async function checkNow() {
+  const btn    = document.getElementById('checkNowBtn');
+  const status = document.getElementById('checkNowStatus');
+
+  btn.disabled    = true;
+  btn.textContent = '⏳ Checking...';
+  status.textContent = 'Running check…';
+
+  await fetch('/api/monitor/check-now', { method: 'POST' });
+
+  const poll = setInterval(async () => {
+    const r = await fetch('/api/monitor/status');
+    const s = await r.json();
+    if (!s.running) {
+      clearInterval(poll);
+      btn.disabled    = false;
+      btn.textContent = '⚡ Check Now';
+      status.textContent = '✓ Done';
+      loadMonitorStats();
+      setTimeout(() => { status.textContent = ''; }, 4000);
+    }
+  }, 2000);
+}
+
+// ─── Drafts ──────────────────────────────────────────────────────────────────
+let currentDraftId   = null;
+let draftHistory     = [''];
+let draftHistIdx     = 0;
+let draftHistLock    = false;
+let draftSaveTimer   = null;
+let draftHistTimer   = null;
+let draftBulletNum   = 1;
+
+// ── List ──────────────────────────────────────────────────────────────────────
+async function loadDrafts(selectId) {
+  const res    = await fetch('/api/drafts');
+  const drafts = await res.json();
+  const list   = document.getElementById('draftList');
+  document.getElementById('draftsCount').textContent = drafts.length;
+
+  if (!drafts.length) {
+    list.innerHTML = `<div class="drafts-empty-list">
+      <svg width="80" height="80" viewBox="0 0 80 80" fill="none" style="display:block;margin:0 auto 10px">
+        <ellipse cx="40" cy="46" rx="36" ry="24" fill="#fff5f0"/>
+        <g transform="translate(16 10)">
+          <rect x="0" y="4" width="40" height="50" rx="6" fill="#fef3c7" stroke="#0f172a" stroke-width="2"/>
+        </g>
+        <g transform="translate(24 8)">
+          <rect x="0" y="0" width="40" height="52" rx="6" fill="#fff" stroke="#0f172a" stroke-width="2"/>
+          <rect x="6" y="10" width="22" height="3" rx="1.5" fill="#0f172a"/>
+          <rect x="6" y="18" width="28" height="2.5" rx="1.5" fill="#cbd5e1"/>
+          <rect x="6" y="24" width="20" height="2.5" rx="1.5" fill="#cbd5e1"/>
+          <circle cx="28" cy="40" r="6" fill="#5eead4"/>
+          <path d="M25 40 l2 2 4-4" stroke="#0f172a" stroke-width="1.5" stroke-linecap="round" stroke-linejoin="round"/>
+        </g>
+        <path d="M68 24 l1.5 3 3 .4 -2.3 2.2 .6 3 -2.8-1.5 -2.8 1.5 .6-3 -2.3-2.2 3-.4z" fill="#fbbf24"/>
+        <circle cx="10" cy="62" r="3" fill="#c7d2fe"/>
+      </svg>
+      <div style="font-weight:600;color:var(--ink)">No drafts yet</div>
+      <div style="margin-top:4px;color:var(--muted-2);font-size:12px">Hit <b style="color:var(--orange)">+ New</b> to start writing.</div>
+    </div>`;
+    showDraftEmptyState();
+    return;
+  }
+
+  list.innerHTML = drafts.map(d => {
+    const displayTitle = d.title || (d.text || '').split('\n')[0].trim().slice(0, 42) || 'Untitled';
+    const isEmpty      = !d.title && !(d.text || '').trim();
+    const ago          = relativeTime(d.updatedAt);
+    const chars        = (d.text || '').length;
+    const hasFiles     = (d.imagePaths?.length || d.documentPath) ? '📎 ' : '';
+    const active       = d.id === (selectId || currentDraftId) ? 'active' : '';
+    return `
+      <div class="draft-item ${active}" onclick="openDraft('${d.id}')" id="di_${d.id}">
+        <div class="draft-item-title ${isEmpty ? 'empty' : ''}">${hasFiles}${escHtml(isEmpty ? 'Untitled' : displayTitle)}</div>
+        <div class="draft-item-meta">
+          <span>${ago}</span>
+          ${chars ? `<span>${chars} ch</span>` : ''}
+          ${typeBadge(d.type)}
+          ${postAsBadge(d)}
+        </div>
+        <button class="draft-item-del" onclick="confirmDeleteDraft(event,'${d.id}')" title="Delete">✕</button>
+      </div>`;
+  }).join('');
+
+  // Auto-select the first draft if none selected
+  if (!currentDraftId && drafts.length) openDraft(drafts[0].id);
+  else if (selectId) openDraft(selectId);
+}
+
+function relativeTime(iso) {
+  const diff = Date.now() - new Date(iso).getTime();
+  const m    = Math.floor(diff / 60000);
+  if (m < 1)   return 'just now';
+  if (m < 60)  return `${m}m ago`;
+  const h = Math.floor(m / 60);
+  if (h < 24)  return `${h}h ago`;
+  return `${Math.floor(h / 24)}d ago`;
+}
+
+// ── Open ──────────────────────────────────────────────────────────────────────
+async function openDraft(id) {
+  const res   = await fetch(`/api/drafts`);
+  const all   = await res.json();
+  const draft = all.find(d => d.id === id);
+  if (!draft) return;
+
+  currentDraftId = id;
+
+  // Highlight in list
+  document.querySelectorAll('.draft-item').forEach(el => el.classList.remove('active'));
+  const item = document.getElementById(`di_${id}`);
+  if (item) item.classList.add('active');
+
+  // Fill editor
+  document.getElementById('draftTitle').value        = draft.title || '';
+  document.getElementById('draftEditor').innerText   = draft.text || '';
+  document.getElementById('draftHashtags').value     = (draft.hashtags || []).join(', ');
+  document.getElementById('draftCta').value          = draft.cta || '';
+  document.getElementById('draftType').value         = draft.type || 'text';
+  // Restore the "Post as" identity if the draft has one
+  const draftPostAs = document.getElementById('draftPostAs');
+  if (draftPostAs) draftPostAs.value = draft.postAsPageId || '';
+
+  // Show/hide media zone
+  onDraftTypeChange(false);
+  renderDraftAttachedFiles(draft);
+  updateDraftMediaPreview(draft);
+
+  // Reset history for this draft
+  draftHistory  = [draft.text || ''];
+  draftHistIdx  = 0;
+  updateDraftUndoButtons();
+  updateDraftCharCount();
+  showDraftEditor();
+  updateDraftPreview();
+}
+
+function showDraftEditor() {
+  document.getElementById('draftEmptyState').style.display  = 'none';
+  const inner = document.getElementById('draftEditorInner');
+  inner.style.display = 'flex';
+  inner.style.flexDirection = 'column';
+  inner.style.overflow = 'hidden';
+  inner.style.flex = '1';
+}
+function showDraftEmptyState() {
+  document.getElementById('draftEmptyState').style.display  = 'flex';
+  document.getElementById('draftEditorInner').style.display = 'none';
+  currentDraftId = null;
+}
+
+// ── New ───────────────────────────────────────────────────────────────────────
+async function newDraft() {
+  const res   = await fetch('/api/drafts', { method: 'POST', headers: {'Content-Type':'application/json'}, body: '{}' });
+  const draft = await res.json();
+  currentDraftId = draft.id;
+  await loadDrafts(draft.id);
+  document.getElementById('draftEditor').focus();
+}
+
+// ── Auto-save ─────────────────────────────────────────────────────────────────
+function onDraftInput() {
+  updateDraftCharCount();
+  debouncedDraftHistSave();
+  debouncedDraftSave();
+  updateDraftPreview();
+}
+
+function draftFieldChanged() {
+  debouncedDraftSave();
+  updateDraftPreview();
+}
+
+function debouncedDraftSave() {
+  clearTimeout(draftSaveTimer);
+  setDraftAutosave('saving', 'Saving…');
+  draftSaveTimer = setTimeout(saveDraft, 1500);
+}
+
+function debouncedDraftHistSave() {
+  clearTimeout(draftHistTimer);
+  draftHistTimer = setTimeout(saveDraftHistory, 600);
+}
+
+async function saveDraft() {
+  if (!currentDraftId) return;
+  const title    = document.getElementById('draftTitle').value.trim();
+  const text     = document.getElementById('draftEditor').innerText || '';
+  const hashtags = document.getElementById('draftHashtags').value
+    .split(',').map(h => h.trim()).filter(Boolean);
+  const cta  = document.getElementById('draftCta').value.trim();
+  const type = document.getElementById('draftType').value;
+  const postAs = getPostAsValue('draftPostAs');
+
+  await fetch(`/api/drafts/${currentDraftId}`, {
+    method: 'PUT',
+    headers: { 'Content-Type': 'application/json' },
+    body: JSON.stringify({
+      title, text, hashtags, cta, type,
+      postAsPageId:   postAs.id,
+      postAsPageName: postAs.name
+    })
+  });
+  setDraftAutosave('saved', '✓ Saved');
+  await loadDrafts();
+}
+
+function setDraftAutosave(cls, msg) {
+  const el = document.getElementById('draftAutosave');
+  el.className = `draft-autosave ${cls}`;
+  el.textContent = msg;
+}
+
+function updateDraftCharCount() {
+  const len   = (document.getElementById('draftEditor').innerText || '').length;
+  const el    = document.getElementById('draftCharCount');
+  el.textContent = `${len} / 3000`;
+  el.style.color = len > 3000 ? '#dc2626' : len > 2600 ? '#f59e0b' : '#aaa';
+}
+
+function toggleDraftPreview() {
+  const panel = document.getElementById('draftPreviewPanel');
+  panel.classList.toggle('preview-open');
+}
+
+// ── Draft media preview (mirrors Schedule's updateMediaPreview) ───────────────
+async function updateDraftMediaPreview(draft) {
+  const wrap = document.getElementById('draftPreviewMedia');
+  if (!wrap) return;
+  const type = draft?.type || document.getElementById('draftType').value;
+
+  // Use uploaded file URLs from server
+  const imagePaths  = draft?.imagePaths  || [];
+  const docPath     = draft?.documentPath || null;
+
+  if (type === 'text' || (!imagePaths.length && !docPath)) {
+    wrap.style.display = 'none';
+    wrap.innerHTML = '';
+    return;
+  }
+  wrap.style.display = 'block';
+
+  function pathToUrl(p) {
+    // Convert full system path to /uploads/filename URL
+    return '/uploads/' + p.split(/[\/\\]/).pop();
+  }
+
+  if (type === 'carousel' && docPath) {
+    const url = pathToUrl(docPath);
+    wrap.innerHTML = `
+      <div class="li-carousel" id="draftLiCarousel">
+        <div class="li-carousel-track" id="draftCarouselTrack">
+          <div class="li-carousel-loading">Rendering pages…</div>
+        </div>
+        <button class="li-carousel-arrow prev" id="draftCarPrev" onclick="draftCarNav(-1)" disabled>‹</button>
+        <button class="li-carousel-arrow next" id="draftCarNext" onclick="draftCarNav(1)">›</button>
+        <div class="li-carousel-counter" id="draftCarCounter">— / —</div>
+      </div>`;
+    renderDraftPdfCarousel(url);
+    return;
+  }
+
+  if ((type === 'image' || type === 'mixed') && imagePaths.length) {
+    const urls = imagePaths.map(pathToUrl);
+    if (urls.length === 1) {
+      wrap.innerHTML = `<div class="li-media-single"><img src="${urls[0]}" alt="preview" style="width:100%;height:auto;max-height:400px;object-fit:contain;background:#000;display:block"></div>`;
+    } else {
+      const gridCls = urls.length === 2 ? 'g2' : 'g3';
+      const slots = Math.min(urls.length, 3);
+      const thumbs = urls.slice(0, slots).map((u, i) => {
+        const extra = (i === slots - 1 && urls.length > slots) ? `<div class="more-overlay">+${urls.length - slots + 1}</div>` : '';
+        return `<div class="thumb${gridCls === 'g3' && i === 0 ? ' g3-main' : ''}"><img src="${u}" alt="preview" style="width:100%;height:100%;object-fit:cover;display:block">${extra}</div>`;
+      }).join('');
+      wrap.innerHTML = `<div class="li-media-grid ${gridCls}">${thumbs}</div>`;
+    }
+    return;
+  }
+
+  wrap.style.display = 'none';
+  wrap.innerHTML = '';
+}
+
+let draftCarCurrentPage = 0;
+let draftCarTotalPages  = 0;
+
+async function renderDraftPdfCarousel(url) {
+  pdfjsLib.GlobalWorkerOptions.workerSrc =
+    'https://cdnjs.cloudflare.com/ajax/libs/pdf.js/3.11.174/pdf.worker.min.js';
+  const pdf = await pdfjsLib.getDocument(url).promise;
+  const track = document.getElementById('draftCarouselTrack');
+  if (!track) return;
+  track.innerHTML = '';
+  draftCarTotalPages  = pdf.numPages;
+  draftCarCurrentPage = 0;
+  for (let i = 1; i <= pdf.numPages; i++) {
+    const page     = await pdf.getPage(i);
+    const viewport = page.getViewport({ scale: 1.0 });
+    const canvas   = document.createElement('canvas');
+    canvas.width   = viewport.width;
+    canvas.height  = viewport.height;
+    await page.render({ canvasContext: canvas.getContext('2d'), viewport }).promise;
+    const slide = document.createElement('div');
+    slide.className = 'li-carousel-slide';
+    slide.appendChild(canvas);
+    track.appendChild(slide);
+  }
+  draftUpdateCarNav();
+}
+
+function draftCarNav(dir) {
+  const track = document.getElementById('draftCarouselTrack');
+  if (!track) return;
+  draftCarCurrentPage = Math.max(0, Math.min(draftCarTotalPages - 1, draftCarCurrentPage + dir));
+  track.scrollLeft = draftCarCurrentPage * track.clientWidth;
+  draftUpdateCarNav();
+}
+
+function draftUpdateCarNav() {
+  const prev = document.getElementById('draftCarPrev');
+  const next = document.getElementById('draftCarNext');
+  const ctr  = document.getElementById('draftCarCounter');
+  if (!prev) return;
+  prev.disabled = draftCarCurrentPage === 0;
+  next.disabled = draftCarCurrentPage === draftCarTotalPages - 1;
+  if (ctr) ctr.textContent = `${draftCarCurrentPage + 1} / ${draftCarTotalPages}`;
+}
+
+function updateDraftPreview() {
+  const raw = document.getElementById('draftEditor').innerText || '';
+  const hashtags = document.getElementById('draftHashtags').value
+    .split(',').map(h => h.trim()).filter(Boolean)
+    .map(h => h.startsWith('#') ? h : '#' + h).join(' ');
+  const cta = document.getElementById('draftCta').value.trim();
+
+  let full = raw;
+  if (cta) full += '\n\n' + cta;
+  if (hashtags) full += '\n\n' + hashtags;
+
+  _draftFullText = full;
+
+  renderPreviewText('draftPreviewText', full, draftPreviewExpanded);
+  updatePreviewMeta('draftPreviewMeta', full);
+}
+
+// ── Undo / Redo ───────────────────────────────────────────────────────────────
+function saveDraftHistory() {
+  if (draftHistLock) return;
+  const cur = document.getElementById('draftEditor').innerText || '';
+  if (cur === draftHistory[draftHistIdx]) return;
+  draftHistory = draftHistory.slice(0, draftHistIdx + 1);
+  draftHistory.push(cur);
+  if (draftHistory.length > 11) draftHistory.shift();
+  else draftHistIdx++;
+  updateDraftUndoButtons();
+}
+
+function draftUndo() {
+  if (draftHistIdx <= 0) return;
+  clearTimeout(draftHistTimer);
+  draftHistIdx--;
+  restoreDraftHistory();
+}
+function draftRedo() {
+  if (draftHistIdx >= draftHistory.length - 1) return;
+  clearTimeout(draftHistTimer);
+  draftHistIdx++;
+  restoreDraftHistory();
+}
+function restoreDraftHistory() {
+  draftHistLock = true;
+  const ed = document.getElementById('draftEditor');
+  ed.innerText = draftHistory[draftHistIdx];
+  const r = document.createRange(), s = window.getSelection();
+  r.selectNodeContents(ed); r.collapse(false);
+  s.removeAllRanges(); s.addRange(r);
+  draftHistLock = false;
+  updateDraftCharCount();
+  updateDraftUndoButtons();
+}
+function updateDraftUndoButtons() {
+  document.getElementById('draftUndoBtn').disabled = draftHistIdx <= 0;
+  document.getElementById('draftRedoBtn').disabled = draftHistIdx >= draftHistory.length - 1;
+}
+function handleDraftKey(e) {
+  if ((e.ctrlKey || e.metaKey) && e.key === 'z' && !e.shiftKey) { e.preventDefault(); draftUndo(); }
+  if ((e.ctrlKey || e.metaKey) && (e.key === 'y' || (e.key==='z' && e.shiftKey))) { e.preventDefault(); draftRedo(); }
+}
+
+// ── Formatting (reuses global Unicode maps) ───────────────────────────────────
+function draftFmt(type) {
+  const ed  = document.getElementById('draftEditor');
+  ed.focus();
+  const sel = window.getSelection();
+  if (!sel.rangeCount) return;
+  const range    = sel.getRangeAt(0);
+  const selected = range.toString();
+  if (!selected) return;
+  let result = selected;
+  if (type === 'bold')      result = unicodeConvert(selected, BOLD_MAP,   BOLD_CHARS);
+  if (type === 'italic')    result = unicodeConvert(selected, ITALIC_MAP, ITALIC_CHARS);
+  if (type === 'bolditalic')result = unicodeConvert(selected, BI_MAP,     BI_CHARS);
+  range.deleteContents();
+  range.insertNode(document.createTextNode(result));
+  sel.removeAllRanges();
+  saveDraftHistory();
+  onDraftInput();
+}
+
+function draftInsert(str) {
+  const ed = document.getElementById('draftEditor');
+  ed.focus();
+  const sel = window.getSelection();
+  if (sel.rangeCount) {
+    const r = sel.getRangeAt(0);
+    r.deleteContents();
+    r.insertNode(document.createTextNode(str));
+    r.collapse(false);
+    sel.removeAllRanges(); sel.addRange(r);
+  }
+  saveDraftHistory();
+  onDraftInput();
+}
+
+function draftInsertNum() { draftInsert(`${draftBulletNum++}. `); }
+
+// ── Type change → show/hide media zone ───────────────────────────────────────
+function onDraftTypeChange(save = true) {
+  const type = document.getElementById('draftType').value;
+  const zone = document.getElementById('draftMediaZone');
+  const inp  = document.getElementById('draftFiles');
+  zone.style.display = type !== 'text' ? 'block' : 'none';
+  if (type === 'carousel') inp.accept = 'application/pdf,.pdf';
+  else inp.accept = 'image/*';
+  // Refresh media preview for the current draft
+  if (currentDraftId) {
+    fetch('/api/drafts').then(r => r.json()).then(all => {
+      const d = all.find(x => x.id === currentDraftId);
+      if (d) updateDraftMediaPreview({ ...d, type });
+    });
+  }
+  if (save) draftFieldChanged();
+}
+
+// ── File upload ───────────────────────────────────────────────────────────────
+async function onDraftFilePick() {
+  if (!currentDraftId) return;
+  const files = document.getElementById('draftFiles').files;
+  if (!files.length) return;
+  setDraftAutosave('saving', 'Uploading…');
+
+  const fd = new FormData();
+  for (const f of files) fd.append('files', f);
+
+  const res   = await fetch(`/api/drafts/${currentDraftId}/upload`, { method: 'POST', body: fd });
+  const data  = await res.json();
+  if (!res.ok) { toast('Upload failed: ' + (data.error || 'unknown'), true); return; }
+
+  setDraftAutosave('saved', '✓ Saved');
+  renderDraftAttachedFiles(data.draft);
+  updateDraftMediaPreview(data.draft);
+  await loadDrafts();
+}
+
+function renderDraftAttachedFiles(draft) {
+  const wrap = document.getElementById('draftAttachedFiles');
+  if (!wrap) return;
+  const files = draft.attachedFileNames || [];
+  wrap.innerHTML = files.map((name, i) => `
+    <div class="draft-file-chip">
+      📎 ${escHtml(name)}
+      <button onclick="removeDraftFile(${i})" title="Remove">✕</button>
+    </div>`).join('');
+}
+
+async function removeDraftFile(idx) {
+  if (!currentDraftId) return;
+  await fetch(`/api/drafts/${currentDraftId}/upload/${idx}`, { method: 'DELETE' });
+  const res   = await fetch('/api/drafts');
+  const all   = await res.json();
+  const draft = all.find(d => d.id === currentDraftId);
+  if (draft) {
+    renderDraftAttachedFiles(draft);
+    updateDraftMediaPreview(draft);
+  }
+  await loadDrafts();
+}
+
+// ── Schedule modal ────────────────────────────────────────────────────────────
+function scheduleDraftModal() {
+  if (!currentDraftId) return;
+  const text = document.getElementById('draftEditor').innerText || '';
+  if (!text.trim()) { toast('Draft is empty', true); return; }
+
+  // Default to 1 hour from now
+  const d = new Date(Date.now() + 3_600_000);
+  d.setSeconds(0, 0);
+  document.getElementById('draftScheduleTime').value = d.toISOString().slice(0, 16);
+
+  const overlay = document.getElementById('scheduleDraftOverlay');
+  overlay.style.display = 'flex';
+}
+
+function closeScheduleModal() {
+  document.getElementById('scheduleDraftOverlay').style.display = 'none';
+}
+
+async function submitDraftSchedule() {
+  const scheduleVal = document.getElementById('draftScheduleTime').value;
+  if (!scheduleVal) { toast('Please pick a date and time', true); return; }
+
+  const res   = await fetch('/api/drafts');
+  const all   = await res.json();
+  const draft = all.find(d => d.id === currentDraftId);
+  if (!draft) return;
+
+  const fd = new FormData();
+  fd.append('text', draft.text || '');
+  fd.append('type', draft.type || 'text');
+  fd.append('scheduledAt', new Date(scheduleVal).toISOString());
+  fd.append('hashtags', JSON.stringify(draft.hashtags || []));
+  fd.append('cta', draft.cta || '');
+  if (draft.carouselTitle) fd.append('carouselTitle', draft.carouselTitle);
+
+  // Attach pre-uploaded files via hidden inputs trick: pass paths as JSON
+  if (draft.imagePaths?.length)  fd.append('draftImagePaths',  JSON.stringify(draft.imagePaths));
+  if (draft.documentPath)        fd.append('draftDocumentPath', draft.documentPath);
+
+  // Carry "Post as" identity from draft → scheduled post
+  if (draft.postAsPageId)   fd.append('postAsPageId',   draft.postAsPageId);
+  if (draft.postAsPageName) fd.append('postAsPageName', draft.postAsPageName);
+
+  const schedRes  = await fetch('/api/posts/schedule', { method: 'POST', body: fd });
+  const schedData = await schedRes.json();
+
+  if (!schedRes.ok) { toast('Error: ' + schedData.error, true); return; }
+
+  closeScheduleModal();
+  toast('Post scheduled ✓ — switching to Schedule tab');
+
+  // Switch to Schedule tab and refresh queue
+  setTimeout(() => {
+    document.querySelectorAll('.nav-tab').forEach(t => t.classList.remove('active'));
+    document.querySelectorAll('.page').forEach(p => p.classList.remove('active'));
+    document.querySelector('[data-page="composer"]').classList.add('active');
+    document.getElementById('composer').classList.add('active');
+    loadQueue();
+  }, 800);
+}
+
+// ── Delete ────────────────────────────────────────────────────────────────────
+async function confirmDeleteDraft(e, id) {
+  e.stopPropagation();
+  if (!confirm('Delete this draft?')) return;
+  await fetch(`/api/drafts/${id}`, { method: 'DELETE' });
+  if (currentDraftId === id) showDraftEmptyState();
+  currentDraftId = currentDraftId === id ? null : currentDraftId;
+  await loadDrafts();
+}
+
+async function deleteDraft() {
+  if (!currentDraftId) return;
+  if (!confirm('Delete this draft?')) return;
+  await fetch(`/api/drafts/${currentDraftId}`, { method: 'DELETE' });
+  showDraftEmptyState();
+  currentDraftId = null;
+  await loadDrafts();
+}
+
+// ── Send to Composer ──────────────────────────────────────────────────────────
+async function sendDraftToComposer() {
+  if (!currentDraftId) return;
+  const text     = document.getElementById('draftEditor').innerText || '';
+  const hashtags = document.getElementById('draftHashtags').value;
+  const cta      = document.getElementById('draftCta').value;
+  const type     = document.getElementById('draftType').value;
+
+  if (!text.trim()) { toast('Draft is empty', true); return; }
+
+  // Get draft data for file info
+  const all   = await fetch('/api/drafts').then(r => r.json());
+  const draft = all.find(d => d.id === currentDraftId);
+
+  // Load into composer
+  document.getElementById('editor').innerText  = text;
+  document.getElementById('hashtags').value    = hashtags;
+  document.getElementById('cta').value         = cta;
+  document.getElementById('postType').value    = type;
+  // Carry the draft's "Post as" choice into the composer
+  const composerPostAs = document.getElementById('postAsSelect');
+  if (composerPostAs) composerPostAs.value = draft?.postAsPageId || '';
+
+  // Store file paths for when user schedules from composer
+  window._pendingDraftFiles = {
+    imagePaths:   draft?.imagePaths   || [],
+    documentPath: draft?.documentPath || null,
+    names:        draft?.attachedFileNames || []
+  };
+
+  // Show draft files in the media zone
+  const hasDraftFiles = draft?.imagePaths?.length || draft?.documentPath;
+  if (hasDraftFiles) {
+    const names = draft.attachedFileNames || [];
+    // Show media zone and populate file list
+    document.getElementById('mediaZoneWrap').style.display = 'block';
+    document.getElementById('fileList').innerHTML = names.map(n =>
+      `<span style="display:inline-flex;align-items:center;gap:4px;background:#e0f2fe;padding:3px 10px;border-radius:6px;font-size:12px;color:#0369a1;margin:2px">📎 ${escHtml(n)} <span style="color:#94a3b8;font-size:10px">(from draft)</span></span>`
+    ).join('');
+  }
+
+  // Reset composer history
+  history  = [text];
+  histIdx  = 0;
+  updateUndoButtons();
+  onEditorInput();
+  onTypeChange();
+
+  // Switch to Write tab
+  document.querySelectorAll('.nav-tab').forEach(t => t.classList.remove('active'));
+  document.querySelectorAll('.page').forEach(p => p.classList.remove('active'));
+  document.querySelector('[data-page="composer"]').classList.add('active');
+  document.getElementById('composer').classList.add('active');
+
+  toast('Draft loaded into composer — set a date and schedule');
+}
+
+// ─── Nav ─────────────────────────────────────────────────────────────────────
+document.querySelectorAll('.nav-tab').forEach(tab => {
+  tab.addEventListener('click', () => {
+    document.querySelectorAll('.nav-tab').forEach(t => t.classList.remove('active'));
+    document.querySelectorAll('.page').forEach(p => p.classList.remove('active'));
+    tab.classList.add('active');
+    document.getElementById(tab.dataset.page).classList.add('active');
+    if (tab.dataset.page === 'monitor')   loadMonitorStats();
+    if (tab.dataset.page === 'drafts')    loadDrafts();
+    if (tab.dataset.page === 'analytics') loadAnalytics();
+  });
+});
+
+// ─── Analytics ────────────────────────────────────────────────────────────────
+async function loadAnalytics() {
+  const res   = await fetch('/api/posts');
+  const posts = await res.json();
+
+  const published  = posts.filter(p => p.status === 'published');
+  const scheduled  = posts.filter(p => p.status === 'scheduled');
+  const failed     = posts.filter(p => p.status === 'failed');
+  const total      = published.length;
+
+  // ── Stat cards ──
+  const thisWeek = published.filter(p => {
+    return p.publishedAt && (Date.now() - new Date(p.publishedAt).getTime()) <= 7 * 86400000;
+  }).length;
+  const thisMonth = published.filter(p => {
+    return p.publishedAt && (Date.now() - new Date(p.publishedAt).getTime()) <= 30 * 86400000;
+  }).length;
+
+  // Publishing streak (consecutive days with at least 1 post)
+  let streak = 0;
+  if (published.length) {
+    const days = new Set(published.map(p => {
+      const d = new Date(p.publishedAt || p.scheduledAt);
+      return `${d.getFullYear()}-${d.getMonth()}-${d.getDate()}`;
+    }));
+    const today = new Date();
+    for (let i = 0; i < 365; i++) {
+      const d = new Date(today);
+      d.setDate(d.getDate() - i);
+      const key = `${d.getFullYear()}-${d.getMonth()}-${d.getDate()}`;
+      if (days.has(key)) streak++;
+      else if (i > 0) break;
+    }
+  }
+
+  const statDefs = [
+    { icon: '✅', value: total,      label: 'Total Published',  sub: 'all time',          accent: '#ff6a3d', soft: '#fff4ee' },
+    { icon: '📅', value: thisMonth,  label: 'This Month',       sub: 'last 30 days',      accent: '#0a66c2', soft: '#e6f0fb' },
+    { icon: '🔥', value: streak,     label: 'Day Streak',       sub: `${scheduled.length} queued`, accent: '#f59e0b', soft: '#fef3c7' },
+    { icon: '⚡', value: thisWeek,   label: 'This Week',        sub: `${failed.length} failed`,    accent: '#0f9d7a', soft: '#ecfdf5' },
+  ];
+
+  document.getElementById('anStatsRow').innerHTML = statDefs.map(s => `
+    <div class="an-stat-card" style="--accent:${s.accent};--accent-soft:${s.soft}">
+      <div class="an-stat-body">
+        <div class="an-stat-value" style="color:${s.accent}">${s.value}</div>
+        <div class="an-stat-label">${s.label}</div>
+        <div class="an-stat-sub">${s.sub}</div>
+      </div>
+      <div class="an-stat-icon" style="background:${s.soft}">${s.icon}</div>
+    </div>`).join('');
+
+  if (!total) {
+    const emptyHTML = `<div class="an-empty">
+      <svg width="160" height="120" viewBox="0 0 160 120" fill="none" style="display:block;margin:0 auto">
+        <ellipse cx="80" cy="70" rx="70" ry="45" fill="#fef9ee"/>
+        <rect x="30" y="40" width="20" height="40" rx="5" fill="#fbbf24"/>
+        <rect x="60" y="55" width="20" height="25" rx="5" fill="#ff6a3d"/>
+        <rect x="90" y="45" width="20" height="35" rx="5" fill="#5eead4"/>
+        <rect x="120" y="50" width="20" height="30" rx="5" fill="#c7d2fe"/>
+        <line x1="20" y1="80" x2="150" y2="80" stroke="#0f172a" stroke-width="2" stroke-linecap="round"/>
+      </svg>
+      <div class="an-empty-title">No data yet</div>
+      <div class="an-empty-sub">Publish your first post to see analytics here.</div>
+    </div>`;
+    document.getElementById('anTypeBreakdown').innerHTML = emptyHTML;
+    document.getElementById('anTimePatterns').innerHTML  = emptyHTML;
+    document.getElementById('anPostsList').innerHTML     = emptyHTML;
+    return;
+  }
+
+  // ── Type breakdown ──
+  const typeCounts = { text: 0, image: 0, carousel: 0, mixed: 0 };
+  published.forEach(p => { if (typeCounts[p.type] !== undefined) typeCounts[p.type]++; });
+  const typeColors  = { text: '#0a66c2', image: '#ff6a3d', carousel: '#5eead4', mixed: '#fbbf24' };
+  const typeLabels  = { text: '📝 Text', image: '🖼️ Image', carousel: '📑 Carousel', mixed: '🖼️ Mixed' };
+  const maxType = Math.max(...Object.values(typeCounts), 1);
+  document.getElementById('anTypeBreakdown').innerHTML = Object.entries(typeCounts)
+    .sort((a, b) => b[1] - a[1])
+    .map(([type, count]) => `
+      <div class="an-type-row">
+        <span class="an-type-label">${typeLabels[type]}</span>
+        <div class="an-bar-wrap">
+          <div class="an-bar" style="width:${Math.round(count / maxType * 100)}%;background:${typeColors[type]}"></div>
+        </div>
+        <span class="an-type-count">${count}</span>
+      </div>`).join('');
+
+  // ── Time patterns (hours bucketed into 4-hour blocks) ──
+  const hourBuckets = Array(6).fill(0); // 0-3, 4-7, 8-11, 12-15, 16-19, 20-23
+  const hourLabels  = ['Midnight', '4am', '8am', 'Noon', '4pm', '8pm'];
+  published.forEach(p => {
+    const d = new Date(p.publishedAt || p.scheduledAt);
+    const bucket = Math.floor(d.getHours() / 4);
+    hourBuckets[bucket]++;
+  });
+  const maxBucket = Math.max(...hourBuckets, 1);
+  document.getElementById('anTimePatterns').innerHTML = `
+    <div class="an-time-grid">
+      ${hourBuckets.map((count, i) => {
+        const pct = count / maxBucket;
+        const bg  = pct > 0.66 ? '#ff6a3d' : pct > 0.33 ? '#fbbf24' : pct > 0 ? '#5eead4' : 'var(--line)';
+        return `<div class="an-time-cell" style="background:${bg};color:${pct > 0.66 ? '#fff' : 'var(--ink-2)'}">
+          <div style="font-size:16px;font-weight:800">${count}</div>
+          <div class="an-time-label">${hourLabels[i]}</div>
+        </div>`;
+      }).join('')}
+    </div>
+    <div class="an-time-legend">
+      <span class="pill" style="background:#ff6a3d">Hot</span>
+      <span class="pill" style="background:#fbbf24;color:#7c3a00">Warm</span>
+      <span class="pill" style="background:#5eead4;color:#0f5e54">Occasional</span>
+      <span>— when you usually publish</span>
+    </div>`;
+
+  // ── Per-Identity breakdown ──
+  // Group posts by postAsPageId (null = personal). Only show this card if
+  // the user has actually used the "Post As" feature — otherwise it's noise.
+  const byIdentity = new Map();
+  published.forEach(p => {
+    const key   = p.postAsPageId || '__personal__';
+    const label = p.postAsPageId ? (p.postAsPageName || p.postAsPageId) : '👤 Personal profile';
+    const entry = byIdentity.get(key) || { label, slug: p.postAsPageId || null, count: 0 };
+    entry.count++;
+    byIdentity.set(key, entry);
+  });
+  const identityRows = Array.from(byIdentity.values()).sort((a, b) => b.count - a.count);
+  const hasPagePosts = identityRows.some(r => r.slug !== null);
+  const pageBreakdownCard = document.getElementById('anPageBreakdownCard');
+  if (hasPagePosts) {
+    pageBreakdownCard.style.display = '';
+    const maxIdentity = Math.max(...identityRows.map(r => r.count), 1);
+    document.getElementById('anPageBreakdown').innerHTML = identityRows.map(r => {
+      const color = r.slug === null ? '#0a66c2' : '#7c3aed';
+      const icon  = r.slug === null ? '👤' : '🏢';
+      return `
+        <div class="an-type-row">
+          <span class="an-type-label">${icon} ${escHtml(r.label)}</span>
+          <div class="an-bar-wrap">
+            <div class="an-bar" style="width:${Math.round(r.count / maxIdentity * 100)}%;background:${color}"></div>
+          </div>
+          <span class="an-type-count">${r.count}</span>
+        </div>`;
+    }).join('');
+  } else {
+    pageBreakdownCard.style.display = 'none';
+  }
+
+  // ── Recent posts ──
+  // For each post, build the best "View on LinkedIn" link we can:
+  //   1. Direct activity URL if we captured linkedinPostId (best)
+  //   2. Page posts feed if we know the page slug (good)
+  //   3. Nothing (last resort)
+  function viewLink(p) {
+    if (p.linkedinPostId) {
+      return `<a href="https://www.linkedin.com/feed/update/urn:li:activity:${p.linkedinPostId}/" target="_blank" style="color:var(--brand)">View on LinkedIn ↗</a>`;
+    }
+    if (p.postAsPageId) {
+      return `<a href="https://www.linkedin.com/company/${p.postAsPageId}/posts/?feedView=all" target="_blank" style="color:var(--brand)">View on page ↗</a>`;
+    }
+    return '';
+  }
+  const recent = published.slice(0, 20);
+  const typeDotsColor = { text: '#0a66c2', image: '#ff6a3d', carousel: '#5eead4', mixed: '#fbbf24' };
+  document.getElementById('anPostsList').innerHTML = recent.length
+    ? recent.map(p => `
+        <div class="an-post-row">
+          <div class="an-post-dot" style="background:${typeDotsColor[p.type] || '#ccc'}"></div>
+          <div class="an-post-body">
+            <div class="an-post-text">${escHtml((p.text || '').slice(0, 200))}</div>
+            <div class="an-post-meta">
+              <span>📅 ${new Date(p.publishedAt || p.scheduledAt).toLocaleString()}</span>
+              ${typeBadge(p.type)}
+              ${postAsBadge(p)}
+              ${viewLink(p)}
+            </div>
+          </div>
+        </div>`).join('')
+    : '<div style="padding:20px;text-align:center;color:var(--muted)">No published posts yet.</div>';
+}
+
+// ─── Toast ────────────────────────────────────────────────────────────────────
+let toastTimer;
+function toast(msg, isError = false) {
+  const el = document.getElementById('toast');
+  el.textContent = msg;
+  el.className = 'toast show' + (isError ? ' error' : '');
+  clearTimeout(toastTimer);
+  toastTimer = setTimeout(() => el.classList.remove('show'), 3000);
+}
+
+// ─── Auth check ───────────────────────────────────────────────────────────────
+async function checkAuth() {
+  const pill = document.getElementById('authPill');
+  try {
+    const res  = await fetch('/auth/status');
+    const data = await res.json();
+    if (data.loggedIn) {
+      pill.innerHTML = '<span class="auth-pill-text">Connected to LinkedIn</span>';
+      pill.className   = 'auth-pill ok';
+      pill.style.cursor = 'default';
+    } else {
+      pill.innerHTML = '<span class="auth-pill-text">Not connected</span>';
+      pill.className   = 'auth-pill';
+    }
+  } catch {
+    pill.textContent = 'Server offline';
+    pill.className   = 'auth-pill';
+  }
+}
+
+async function connectLinkedIn() {
+  const pill = document.getElementById('authPill');
+  pill.innerHTML = '<span class="auth-pill-text">Opening...</span>';
+  await fetch('/auth/login', { method: 'POST' });
+  toast('A browser window will open — log into LinkedIn, then come back here.');
+  // Re-check auth every 5s for up to 2 minutes
+  let attempts = 0;
+  const interval = setInterval(async () => {
+    attempts++;
+    const res  = await fetch('/auth/status');
+    const data = await res.json();
+    if (data.loggedIn) {
+      clearInterval(interval);
+      pill.innerHTML = '<span class="auth-pill-text">Connected to LinkedIn</span>';
+      pill.className   = 'auth-pill ok';
+      pill.style.cursor = 'default';
+      toast('LinkedIn connected ✓');
+    } else if (attempts > 24) {
+      clearInterval(interval);
+      pill.innerHTML = '<span class="auth-pill-text">Not connected</span>';
+    }
+  }, 5000);
+}
+
+checkAuth();
+
+// ─── Profile — populate preview header with real name/headline ────────────────
+async function loadProfile() {
+  try {
+    const res = await fetch('/api/profile');
+    const p   = await res.json();
+    if (!p.name) return; // cache not ready yet (scrape runs in background on first start)
+    document.getElementById('previewName').textContent = p.name;
+    document.getElementById('previewHeadline').textContent =
+      (p.headline || 'LinkedIn Member') + ' • Just now';
+    const avatarEl = document.getElementById('previewAvatar');
+    if (p.photo) {
+      const initial = p.name[0].toUpperCase();
+      avatarEl.innerHTML = `<img src="${p.photo}" style="width:100%;height:100%;border-radius:50%;object-fit:cover;" onerror="this.parentElement.textContent='${initial}'">`;
+    } else {
+      avatarEl.textContent = p.name[0].toUpperCase();
+    }
+    // Also populate draft preview
+    const dpName = document.getElementById('draftPreviewName');
+    const dpHeadline = document.getElementById('draftPreviewHeadline');
+    const dpAvatar = document.getElementById('draftPreviewAvatar');
+    if (dpName) dpName.textContent = p.name;
+    if (dpHeadline) dpHeadline.textContent = (p.headline || 'LinkedIn Member') + ' • Just now';
+    if (dpAvatar) {
+      if (p.photo) {
+        const initial = p.name[0].toUpperCase();
+        dpAvatar.innerHTML = `<img src="${p.photo}" style="width:100%;height:100%;border-radius:50%;object-fit:cover;" onerror="this.parentElement.textContent='${initial}'">`;
+      } else {
+        dpAvatar.textContent = p.name[0].toUpperCase();
+      }
+    }
+  } catch {}
+}
+loadProfile();
+
+// ─── Pages ("Post as" identities) ─────────────────────────────────────────────
+// Loads cached identities from the server and populates both dropdowns
+// (compose and drafts). On first run the cache is empty — the user can hit
+// the "↻" icon to trigger a one-time scrape via Edge.
+let _pagesCache = null;
+
+async function loadPages() {
+  try {
+    const res  = await fetch('/api/pages');
+    const data = await res.json();
+    _pagesCache = data?.identities || [];
+    populatePostAsDropdowns();
+  } catch (e) { /* ignore */ }
+}
+
+function populatePostAsDropdowns() {
+  const opts = (_pagesCache || []).filter(i => !i.isPersonal).map(i =>
+    `<option value="${escAttr(i.id)}" data-name="${escAttr(i.name)}">🏢 ${escHtml(i.name)}</option>`
+  ).join('');
+
+  const composeSel = document.getElementById('postAsSelect');
+  if (composeSel) {
+    const current = composeSel.value;
+    composeSel.innerHTML = `<option value="">👤 Personal profile (default)</option>` + opts;
+    if (current) composeSel.value = current;
+  }
+  const draftSel = document.getElementById('draftPostAs');
+  if (draftSel) {
+    const current = draftSel.value;
+    draftSel.innerHTML = `<option value="">👤 Personal</option>` + opts;
+    if (current) draftSel.value = current;
+  }
+}
+
+function escAttr(s) { return String(s ?? '').replace(/"/g, '&quot;'); }
+
+async function refreshPages(ev) {
+  if (ev) ev.preventDefault();
+  const icon = document.querySelector('.post-as-refresh');
+  if (icon) icon.classList.add('spinning');
+  toast('Scanning your LinkedIn pages…');
+  try {
+    const res  = await fetch('/api/pages/refresh', { method: 'POST' });
+    const data = await res.json();
+    if (!res.ok) throw new Error(data.error || 'Failed');
+    _pagesCache = data?.identities || [];
+    populatePostAsDropdowns();
+    const pageCount = _pagesCache.filter(i => !i.isPersonal).length;
+    toast(pageCount
+      ? `Found ${pageCount} page${pageCount !== 1 ? 's' : ''} you can post to ✓`
+      : 'No company pages found — only personal posting available');
+  } catch (e) {
+    toast('Could not scan pages: ' + e.message, true);
+  } finally {
+    if (icon) icon.classList.remove('spinning');
+  }
+}
+
+function getPostAsValue(selectId) {
+  const sel = document.getElementById(selectId);
+  if (!sel || !sel.value) return { id: null, name: null };
+  const opt = sel.selectedOptions[0];
+  return { id: sel.value, name: opt?.getAttribute('data-name') || opt?.textContent || null };
+}
+
+loadPages();
+
+// ─── Init ─────────────────────────────────────────────────────────────────────
+loadQueue();
+// Auto-refresh queue every 10s so status changes (publishing → published) appear automatically
+setInterval(loadQueue, 10_000);
+
+// Default schedule to 1 hour from now
+const d = new Date(Date.now() + 3600_000);
+d.setSeconds(0, 0);
+document.getElementById('scheduleTime').value = d.toISOString().slice(0, 16);
+</script>
+</body>
+</html>
