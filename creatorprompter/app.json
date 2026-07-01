@@ -12,7 +12,8 @@
       "permissions": [
         "RECORD_AUDIO",
         "SYSTEM_ALERT_WINDOW",
-        "FOREGROUND_SERVICE"
+        "FOREGROUND_SERVICE",
+        "FOREGROUND_SERVICE_MICROPHONE"
       ]
     },
     "plugins": ["expo-dev-client"]

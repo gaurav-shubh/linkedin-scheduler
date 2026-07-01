@@ -1,10 +1,11 @@
 node_modules/
+.env
 .expo/
 .expo-shared/
 dist/
 web-build/
-android/
-ios/
+/android/
+/ios/
 *.orig.*
 *.log
 .DS_Store

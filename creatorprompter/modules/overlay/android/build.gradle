@@ -1,0 +1,25 @@
+plugins {
+  id 'com.android.library'
+  id 'expo-module-gradle-plugin'
+}
+
+group = 'expo.modules.overlay'
+version = '0.1.0'
+
+android {
+  namespace "expo.modules.overlay"
+  defaultConfig {
+    versionCode 1
+    versionName "0.1.0"
+  }
+  lintOptions {
+    abortOnError false
+  }
+}
+
+dependencies {
+  // Provided by the host app at runtime; RN's Gradle plugin resolves the
+  // unversioned coordinate to whatever react-native version the app uses.
+  compileOnly "com.facebook.react:react-android"
+  implementation "androidx.core:core:1.13.1"
+}

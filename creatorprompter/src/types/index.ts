@@ -38,8 +38,14 @@ export interface TranscriptionResult {
 
 export type STTMode = "local" | "cloud" | "mock";
 
+export interface SpeechToTextInitOptions {
+  initialPrompt?: string;
+  /** Fires while a local model is being downloaded; ignored by services that don't need one. */
+  onModelDownloadProgress?: (fraction: number) => void;
+}
+
 export interface SpeechToTextService {
-  initialize(options: { initialPrompt?: string }): Promise<void>;
+  initialize(options: SpeechToTextInitOptions): Promise<void>;
   start(onResult: (result: TranscriptionResult) => void): Promise<void>;
   stop(): Promise<void>;
   isRunning(): boolean;

@@ -14,11 +14,14 @@
     "expo": "~51.0.0",
     "expo-dev-client": "~4.0.0",
     "expo-av": "~14.0.0",
+    "expo-file-system": "~17.0.0",
     "react": "18.2.0",
-    "react-native": "0.74.5"
+    "react-native": "0.74.5",
+    "whisper.rn": "^0.5.2"
   },
   "devDependencies": {
     "@babel/core": "^7.24.0",
+    "@types/node": "^20.14.0",
     "@types/react": "~18.2.79",
     "ts-node": "^10.9.2",
     "typescript": "~5.3.3"
