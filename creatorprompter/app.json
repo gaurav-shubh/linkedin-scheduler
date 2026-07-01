@@ -1,0 +1,20 @@
+{
+  "expo": {
+    "name": "CreatorPrompter",
+    "slug": "creatorprompter",
+    "version": "0.1.0",
+    "orientation": "portrait",
+    "scheme": "creatorprompter",
+    "userInterfaceStyle": "automatic",
+    "platforms": ["android"],
+    "android": {
+      "package": "com.creatorprompter.app",
+      "permissions": [
+        "RECORD_AUDIO",
+        "SYSTEM_ALERT_WINDOW",
+        "FOREGROUND_SERVICE"
+      ]
+    },
+    "plugins": ["expo-dev-client"]
+  }
+}
