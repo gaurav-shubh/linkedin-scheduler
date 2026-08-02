@@ -10,6 +10,7 @@ import {
   Figtree_800ExtraBold,
   useFonts,
 } from '@expo-google-fonts/figtree';
+import { useReducedMotion } from 'react-native-reanimated';
 import { initializeDatabase } from '../src/db/schema';
 import { NOTIF } from '../src/lib/notifications';
 import AnimatedIntro, { INTRO_TOTAL_MS } from '../src/components/AnimatedIntro';
@@ -37,6 +38,8 @@ function NotificationRouter() {
 
 export default function RootLayout() {
   const [introDone, setIntroDone] = useState(false);
+  // People who ask the OS for less motion get none of it — no intro, no cascades.
+  const reduceMotion = useReducedMotion();
   const [fontsLoaded, fontError] = useFonts({
     Figtree_500Medium,
     Figtree_700Bold,
@@ -52,9 +55,13 @@ export default function RootLayout() {
 
   useEffect(() => {
     if (!ready) return undefined;
+    if (reduceMotion) {
+      setIntroDone(true);
+      return undefined;
+    }
     const t = setTimeout(() => setIntroDone(true), INTRO_TOTAL_MS);
     return () => clearTimeout(t);
-  }, [ready]);
+  }, [ready, reduceMotion]);
 
   if (!ready) return null;
 

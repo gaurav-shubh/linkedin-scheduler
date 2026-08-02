@@ -14,26 +14,38 @@ const SIZE = 104;
 
 /**
  * The day's single primary action: one oversized circular check-in. Coral ring while
- * the day is open; a green disc springs in when done. Tap again to undo.
+ * the day is open; a green disc springs in and the check pops when done. Tap again
+ * to undo. Haptics: a crisp success tap on completion, a soft bump on undo — never
+ * a warning buzz, because undoing isn't an error.
  */
 export default function CheckCircle({ done, onPress }) {
   const press = useSharedValue(1);
   const fill = useSharedValue(done ? 1 : 0);
+  const glyph = useSharedValue(1);
 
   useEffect(() => {
-    fill.value = done
-      ? withSpring(1, { damping: 12, stiffness: 180 })
-      : withTiming(0, { duration: 180 });
-  }, [done, fill]);
+    if (done) {
+      fill.value = withSpring(1, { damping: 14, stiffness: 220 });
+      // The check itself pops a beat after the disc lands — two-stage detail
+      // that reads as choreography rather than a single keyframe.
+      glyph.value = withSequence(
+        withTiming(0.7, { duration: 60 }),
+        withSpring(1, { damping: 9, stiffness: 320 })
+      );
+    } else {
+      fill.value = withTiming(0, { duration: 160 });
+    }
+  }, [done, fill, glyph]);
 
   const handlePress = () => {
     press.value = withSequence(
-      withTiming(0.9, { duration: 90 }),
-      withSpring(1, { damping: 10, stiffness: 240 })
+      withTiming(0.92, { duration: 80 }),
+      withSpring(1, { damping: 13, stiffness: 260 })
     );
     if (Platform.OS !== 'web') {
-      Haptics.notificationAsync(
-        done ? Haptics.NotificationFeedbackType.Warning : Haptics.NotificationFeedbackType.Success
+      (done
+        ? Haptics.impactAsync(Haptics.ImpactFeedbackStyle.Light)
+        : Haptics.notificationAsync(Haptics.NotificationFeedbackType.Success)
       ).catch(() => {});
     }
     onPress();
@@ -44,6 +56,7 @@ export default function CheckCircle({ done, onPress }) {
     opacity: fill.value,
     transform: [{ scale: 0.3 + fill.value * 0.7 }],
   }));
+  const glyphStyle = useAnimatedStyle(() => ({ transform: [{ scale: glyph.value }] }));
 
   return (
     <View style={styles.wrap}>
@@ -55,7 +68,11 @@ export default function CheckCircle({ done, onPress }) {
           style={[styles.circle, !done && elevation.raised]}
         >
           <Animated.View style={[styles.fillDisc, fillStyle]} />
-          <Text style={[styles.check, done ? styles.checkDone : styles.checkPending]}>✓</Text>
+          <Animated.Text
+            style={[styles.check, done ? styles.checkDone : styles.checkPending, glyphStyle]}
+          >
+            ✓
+          </Animated.Text>
         </Pressable>
       </Animated.View>
       <Text style={styles.caption}>{done ? 'Done today' : 'Tap when it’s done'}</Text>
