@@ -6,34 +6,58 @@ import Card from '../../src/components/Card';
 import PromptEditor from '../../src/components/PromptEditor';
 import StaircaseContext from '../../src/components/StaircaseContext';
 import StreakBadge from '../../src/components/StreakBadge';
+import YesterdayReview from '../../src/components/YesterdayReview';
 import {
   countCompletedEntries,
   getDailyEntry,
   getGoal,
   getPeriod,
+  getSetting,
   listDailyEntries,
   setDailyCompleted,
+  setSetting,
   upsertDailyEntry,
+  upsertPeriod,
 } from '../../src/db/queries';
-import { dateKey, friendlyDate, monthKey, weekKey } from '../../src/lib/dates';
+import { addDays, dateKey, friendlyDate, monthKey, weekKey } from '../../src/lib/dates';
 import { computeStreak, habitProgress } from '../../src/lib/streak';
-import { DAILY_PROMPT, TIME_BLOCK_TIP } from '../../src/lib/content';
+import {
+  DAILY_PROMPT,
+  DAILY_PROMPT_NO_WEEK,
+  MISSING_RUNG,
+  PERIOD_LEVELS,
+  TIME_BLOCK_TIP,
+} from '../../src/lib/content';
 import { colors, spacing, typography } from '../../src/theme';
 
 export default function Today() {
   const db = useSQLiteContext();
   const [loading, setLoading] = useState(true);
   const [entry, setEntry] = useState(null);
+  const [yesterday, setYesterday] = useState(null);
   const [timeBlock, setTimeBlock] = useState('');
   const [context, setContext] = useState({ why: '', oneYear: '', month: '', week: '' });
   const [streak, setStreak] = useState(0);
-  const [habit, setHabit] = useState(habitProgress(0));
+  const [habit, setHabit] = useState(habitProgress(0, 0));
 
   const today = dateKey();
+  const yesterdayKey = dateKey(addDays(new Date(), -1));
 
   const load = useCallback(async () => {
-    const [dailyEntry, whyGoal, oneYearGoal, monthPeriod, weekPeriod, recentEntries, completedCount] = await Promise.all([
+    const [
+      dailyEntry,
+      prevEntry,
+      reviewedUpTo,
+      whyGoal,
+      oneYearGoal,
+      monthPeriod,
+      weekPeriod,
+      recentEntries,
+      completedCount,
+    ] = await Promise.all([
       getDailyEntry(db, today),
+      getDailyEntry(db, yesterdayKey),
+      getSetting(db, 'last_reviewed_date'),
       getGoal(db, 'why'),
       getGoal(db, 'one_year'),
       getPeriod(db, 'month', monthKey()),
@@ -41,18 +65,25 @@ export default function Today() {
       listDailyEntries(db, { limit: 400 }),
       countCompletedEntries(db),
     ]);
+
     setEntry(dailyEntry);
     setTimeBlock(dailyEntry?.time_block || '');
+    // Only ask about yesterday if it was actually planned, left unmarked, and not
+    // already answered — otherwise the card would nag forever.
+    const needsReview =
+      prevEntry && prevEntry.one_thing && !prevEntry.completed && reviewedUpTo !== yesterdayKey;
+    setYesterday(needsReview ? prevEntry : null);
     setContext({
       why: whyGoal?.text || '',
       oneYear: oneYearGoal?.text || '',
       month: monthPeriod?.one_thing || '',
       week: weekPeriod?.one_thing || '',
     });
-    setStreak(computeStreak(recentEntries));
-    setHabit(habitProgress(completedCount));
+    const currentStreak = computeStreak(recentEntries);
+    setStreak(currentStreak);
+    setHabit(habitProgress(currentStreak, completedCount));
     setLoading(false);
-  }, [db, today]);
+  }, [db, today, yesterdayKey]);
 
   useFocusEffect(
     useCallback(() => {
@@ -76,7 +107,22 @@ export default function Today() {
     await load();
   };
 
+  const resolveYesterday = async (didIt) => {
+    if (didIt) await setDailyCompleted(db, yesterdayKey, true);
+    await setSetting(db, 'last_reviewed_date', yesterdayKey);
+    await load();
+  };
+
+  const saveMissingRung = (level) => async (text) => {
+    await upsertPeriod(db, level, level === 'month' ? monthKey() : weekKey(), text);
+    await load();
+  };
+
   if (loading) return null;
+
+  // Walk the staircase top-down and prompt for the highest missing rung, so the daily
+  // question always has something real to derive from.
+  const missingLevel = !context.month ? 'month' : !context.week ? 'week' : null;
 
   return (
     <ScrollView style={styles.flex} contentContainerStyle={styles.scroll}>
@@ -87,6 +133,14 @@ export default function Today() {
 
       <View style={styles.spacer} />
 
+      {!!yesterday && (
+        <YesterdayReview
+          entry={yesterday}
+          onYes={() => resolveYesterday(true)}
+          onNo={() => resolveYesterday(false)}
+        />
+      )}
+
       <StaircaseContext
         items={[
           { label: 'YOUR WHY', value: context.why },
@@ -96,9 +150,30 @@ export default function Today() {
         ]}
       />
 
+      {!!missingLevel && (
+        <View style={styles.missingWrap}>
+          <View style={styles.missingHeader}>
+            <Text style={typography.heading}>{MISSING_RUNG[missingLevel].title}</Text>
+            <Text style={[typography.muted, styles.missingBody]}>
+              {MISSING_RUNG[missingLevel].body}
+            </Text>
+          </View>
+          <PromptEditor
+            // Remount per level; the editor keeps its own draft and `value` stays ""
+            // across the month -> week transition, so it would otherwise carry text over.
+            key={missingLevel}
+            label={PERIOD_LEVELS[missingLevel].label}
+            question={PERIOD_LEVELS[missingLevel].prompt}
+            value=""
+            placeholder="The one thing I'll focus on is..."
+            onSave={saveMissingRung(missingLevel)}
+          />
+        </View>
+      )}
+
       <PromptEditor
         label="Today"
-        question={DAILY_PROMPT}
+        question={context.week ? DAILY_PROMPT : DAILY_PROMPT_NO_WEEK}
         value={entry?.one_thing}
         placeholder="The one thing I'll do today is..."
         onSave={saveOneThing}
@@ -137,6 +212,9 @@ const styles = StyleSheet.create({
   spacer: { height: spacing.md },
   spacedTop: { marginTop: spacing.md },
   italic: { fontStyle: 'italic', marginTop: 2 },
+  missingWrap: { marginBottom: spacing.md },
+  missingHeader: { marginBottom: spacing.sm },
+  missingBody: { marginTop: spacing.xs },
   timeInput: {
     marginTop: spacing.sm,
     borderWidth: 1,

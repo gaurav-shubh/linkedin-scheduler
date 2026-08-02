@@ -21,11 +21,39 @@ export function computeStreak(entries) {
   return streak;
 }
 
-export function habitProgress(totalCompletedCount) {
-  if (totalCompletedCount <= 0) {
-    return { cycle: 1, dayInCycle: 0, total: 0, cycleLength: HABIT_CYCLE_DAYS };
+/** Longest run of consecutive completed days anywhere in the history. */
+export function computeLongestStreak(entries) {
+  const dates = entries
+    .filter((e) => e.completed)
+    .map((e) => e.date)
+    .sort();
+  let best = 0;
+  let run = 0;
+  let prev = null;
+  for (const d of dates) {
+    if (d === prev) continue;
+    run = prev && dateKey(addDays(parseKey(prev), 1)) === d ? run + 1 : 1;
+    if (run > best) best = run;
+    prev = d;
   }
-  const cycle = Math.floor((totalCompletedCount - 1) / HABIT_CYCLE_DAYS) + 1;
-  const dayInCycle = ((totalCompletedCount - 1) % HABIT_CYCLE_DAYS) + 1;
-  return { cycle, dayInCycle, total: totalCompletedCount, cycleLength: HABIT_CYCLE_DAYS };
+  return best;
+}
+
+function parseKey(key) {
+  const [y, m, d] = key.split('-').map(Number);
+  return new Date(y, m - 1, d);
+}
+
+/**
+ * Progress toward forming the habit, measured on the CURRENT streak — 66 consecutive
+ * days, not a lifetime tally. `total` is reported separately as an all-time count so
+ * the two can't be mistaken for one another.
+ */
+export function habitProgress(currentStreak, totalCompleted = 0) {
+  return {
+    dayInCycle: Math.min(currentStreak, HABIT_CYCLE_DAYS),
+    cycleLength: HABIT_CYCLE_DAYS,
+    total: totalCompleted,
+    formed: currentStreak >= HABIT_CYCLE_DAYS,
+  };
 }

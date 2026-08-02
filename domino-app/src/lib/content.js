@@ -50,6 +50,26 @@ export const PERIOD_LEVELS = {
 
 export const DAILY_PROMPT = "Based on this week's ONE thing, what's the ONE thing you can do today?";
 
+// Shown when the day's question has no rung above it to derive from yet.
+export const DAILY_PROMPT_NO_WEEK =
+  "What's the ONE thing you can do today that makes everything else easier?";
+
+export const MISSING_RUNG = {
+  month: {
+    title: 'Set this month first',
+    body: "Today's question is meant to follow from a bigger one. Start with the month, and the rest of the staircase falls into place.",
+  },
+  week: {
+    title: 'Set this week first',
+    body: "You've got your month. Now name the ONE thing for this week so today's answer has something to ladder up to.",
+  },
+};
+
+export const YESTERDAY_REVIEW = {
+  title: 'Close out yesterday',
+  question: 'Did you do it?',
+};
+
 export const FOUR_THIEVES = [
   {
     title: "Inability to say \"no\"",

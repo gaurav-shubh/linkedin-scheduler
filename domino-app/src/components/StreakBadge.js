@@ -3,27 +3,33 @@ import { colors, radius, spacing } from '../theme';
 
 export default function StreakBadge({ streak, habit }) {
   return (
-    <View style={styles.row}>
-      <View style={styles.badge}>
-        <Text style={styles.emoji}>🔥</Text>
-        <View>
-          <Text style={styles.num}>{streak}</Text>
-          <Text style={styles.label}>day streak</Text>
+    <View style={styles.wrap}>
+      <View style={styles.row}>
+        <View style={styles.badge}>
+          <Text style={styles.emoji}>🔥</Text>
+          <View style={styles.flex}>
+            <Text style={styles.num}>{streak}</Text>
+            <Text style={styles.label}>day streak</Text>
+          </View>
+        </View>
+        <View style={styles.badge}>
+          <Text style={styles.emoji}>{habit.formed ? '🌱' : '📅'}</Text>
+          <View style={styles.flex}>
+            <Text style={styles.num}>{habit.dayInCycle}/{habit.cycleLength}</Text>
+            <Text style={styles.label}>{habit.formed ? 'habit formed' : 'to habit'}</Text>
+          </View>
         </View>
       </View>
-      <View style={styles.badge}>
-        <Text style={styles.emoji}>📅</Text>
-        <View>
-          <Text style={styles.num}>{habit.dayInCycle}/{habit.cycleLength}</Text>
-          <Text style={styles.label}>habit cycle {habit.cycle}</Text>
-        </View>
-      </View>
+      <Text style={styles.total}>{habit.total} days focused all-time</Text>
     </View>
   );
 }
 
 const styles = StyleSheet.create({
+  wrap: { gap: spacing.sm },
   row: { flexDirection: 'row', gap: spacing.sm },
+  flex: { flex: 1 },
+  total: { fontSize: 12, color: colors.textMuted, textAlign: 'center' },
   badge: {
     flex: 1,
     flexDirection: 'row',

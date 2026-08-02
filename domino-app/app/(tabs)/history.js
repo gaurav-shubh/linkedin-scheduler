@@ -1,13 +1,18 @@
 import { useCallback, useState } from 'react';
-import { ScrollView, StyleSheet, Text, View } from 'react-native';
+import { Pressable, ScrollView, StyleSheet, Text, View } from 'react-native';
 import { useFocusEffect } from 'expo-router';
 import { useSQLiteContext } from 'expo-sqlite';
 import Card from '../../src/components/Card';
 import CompletionHeatmap from '../../src/components/CompletionHeatmap';
 import StreakBadge from '../../src/components/StreakBadge';
-import { countCompletedEntries, listDailyEntries, recentCompletionMap } from '../../src/db/queries';
+import {
+  countCompletedEntries,
+  listDailyEntries,
+  recentCompletionMap,
+  setDailyCompleted,
+} from '../../src/db/queries';
 import { friendlyDate } from '../../src/lib/dates';
-import { computeStreak, habitProgress } from '../../src/lib/streak';
+import { computeLongestStreak, computeStreak, habitProgress } from '../../src/lib/streak';
 import { colors, spacing, typography } from '../../src/theme';
 
 export default function History() {
@@ -15,20 +20,24 @@ export default function History() {
   const [entries, setEntries] = useState([]);
   const [entriesByDate, setEntriesByDate] = useState({});
   const [streak, setStreak] = useState(0);
-  const [habit, setHabit] = useState(habitProgress(0));
+  const [longest, setLongest] = useState(0);
+  const [habit, setHabit] = useState(habitProgress(0, 0));
 
   const load = useCallback(async () => {
-    const [recent, heatmapRows, completedCount] = await Promise.all([
+    const [recent, heatmapRows, completedCount, allRows] = await Promise.all([
       listDailyEntries(db, { limit: 30 }),
       recentCompletionMap(db, 12 * 7),
       countCompletedEntries(db),
+      listDailyEntries(db, { limit: 2000 }),
     ]);
     setEntries(recent);
     const map = {};
     for (const row of heatmapRows) map[row.date] = row;
     setEntriesByDate(map);
-    setStreak(computeStreak(heatmapRows));
-    setHabit(habitProgress(completedCount));
+    const currentStreak = computeStreak(allRows);
+    setStreak(currentStreak);
+    setLongest(computeLongestStreak(allRows));
+    setHabit(habitProgress(currentStreak, completedCount));
   }, [db]);
 
   useFocusEffect(
@@ -36,6 +45,12 @@ export default function History() {
       load();
     }, [load])
   );
+
+  // Missing a tap shouldn't cost a streak that was actually earned.
+  const toggle = async (entry) => {
+    await setDailyCompleted(db, entry.date, !entry.completed);
+    await load();
+  };
 
   return (
     <ScrollView style={styles.flex} contentContainerStyle={styles.scroll}>
@@ -48,20 +63,30 @@ export default function History() {
         <Text style={typography.label}>LAST 12 WEEKS</Text>
         <View style={styles.gap} />
         <CompletionHeatmap entriesByDate={entriesByDate} weeks={12} />
+        <Text style={[typography.muted, styles.longest]}>Longest streak: {longest} days</Text>
       </Card>
 
       <Text style={[typography.label, styles.sectionTitle]}>RECENT DAYS</Text>
-      {entries.length === 0 && <Text style={typography.muted}>No entries yet — set today's ONE Thing to get started.</Text>}
+      <Text style={[typography.muted, styles.hint]}>
+        Forgot to mark one? Tap any day to correct it.
+      </Text>
+      {entries.length === 0 && (
+        <Text style={typography.muted}>No entries yet — set today's ONE Thing to get started.</Text>
+      )}
       {entries.map((e) => (
-        <Card key={e.date} style={styles.entryCard}>
-          <View style={styles.entryRow}>
-            <Text style={typography.muted}>{friendlyDate(e.date)}</Text>
-            <Text style={e.completed ? styles.done : styles.pending}>
-              {e.completed ? '✓ done' : e.one_thing ? 'set' : '—'}
-            </Text>
-          </View>
-          {!!e.one_thing && <Text style={[typography.body, styles.entryText]}>{e.one_thing}</Text>}
-        </Card>
+        <Pressable key={e.date} onPress={() => toggle(e)} disabled={!e.one_thing}>
+          {({ pressed }) => (
+            <Card style={[styles.entryCard, pressed && styles.pressed]}>
+              <View style={styles.entryRow}>
+                <Text style={typography.muted}>{friendlyDate(e.date)}</Text>
+                <Text style={e.completed ? styles.done : styles.pending}>
+                  {e.completed ? '✓ done' : e.one_thing ? 'tap to mark done' : '—'}
+                </Text>
+              </View>
+              {!!e.one_thing && <Text style={[typography.body, styles.entryText]}>{e.one_thing}</Text>}
+            </Card>
+          )}
+        </Pressable>
       ))}
     </ScrollView>
   );
@@ -72,10 +97,13 @@ const styles = StyleSheet.create({
   scroll: { padding: spacing.lg, paddingBottom: spacing.xl },
   gap: { height: spacing.sm },
   gapLg: { height: spacing.md },
-  sectionTitle: { marginTop: spacing.lg, marginBottom: spacing.sm },
+  sectionTitle: { marginTop: spacing.lg },
+  hint: { marginTop: 2, marginBottom: spacing.sm },
+  longest: { marginTop: spacing.sm },
   entryCard: { marginBottom: spacing.sm },
+  pressed: { opacity: 0.7 },
   entryRow: { flexDirection: 'row', justifyContent: 'space-between', alignItems: 'center' },
   entryText: { marginTop: 4 },
   done: { color: colors.success, fontWeight: '700' },
-  pending: { color: colors.textMuted, fontWeight: '600' },
+  pending: { color: colors.accent, fontWeight: '600' },
 });

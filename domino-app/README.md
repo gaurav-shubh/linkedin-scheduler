@@ -21,10 +21,27 @@ sits above the staircase so every answer stays tied to a purpose.
   of past weeks/months.
 - **Goals tab**: edit your Why and your Someday / Five-Year / One-Year goals, plus a
   reminder of the book's "Four Thieves of Focus".
-- **History tab**: a 12-week completion heatmap and a list of recent daily entries.
-- **Settings**: change/disable the daily notification time, or reset all data.
-- **Daily local notification**: fires at the time you chose (default 7:00 AM) with the
-  Focusing Question, and opens straight to Today when tapped.
+- **History tab**: a 12-week completion heatmap, longest streak, and recent daily entries.
+  **Tap any day to correct it** — forgetting to mark something done shouldn't cost a streak
+  you actually earned.
+- **Settings**: notification times and toggles, or reset all data.
+
+### Staying on track
+
+The app is built around the assumption that people forget, and that a system which
+punishes forgetting gets deleted:
+
+- **Missing rung prompts.** The daily question only makes sense if there's a weekly one
+  above it. If the month or week ONE Thing isn't set, Today prompts for it inline (and
+  softens the daily question rather than referring to something that doesn't exist).
+- **Morning prompt** (default 7:00 AM) — the Focusing Question, opens straight to Today.
+- **Evening check-in** (default 9:00 PM) — a nudge to mark the day done, so a day you
+  actually did doesn't get recorded as a miss.
+- **Yesterday review** — if yesterday was planned but never marked, Today asks once
+  whether you did it. Answering either way retires the question.
+- **Week and month kickoff** — Monday and the 1st, a reminder to set the bigger ONE Thing.
+- **66-day progress tracks your current streak**, not a lifetime tally, and the all-time
+  count is shown separately so the two can't be confused.
 
 All data is stored on-device only (SQLite via `expo-sqlite`) — no account, no server, no
 network calls.
@@ -39,6 +56,13 @@ npx expo start
 
 - Scan the QR code with the **Expo Go** app on your phone (iOS or Android) — no build step
   needed for local notifications, they work in Expo Go.
+
+Run the logic tests (streaks, habit progress, review rules) with:
+
+```bash
+npm test
+```
+
 - Or press `w` in the terminal / run `npm run web` to preview in a browser (SQLite web
   support is alpha; local notifications aren't testable in a browser — use Expo Go or a
   device build for that).

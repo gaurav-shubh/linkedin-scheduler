@@ -4,6 +4,7 @@ import { SQLiteProvider } from 'expo-sqlite';
 import { SafeAreaProvider } from 'react-native-safe-area-context';
 import * as Notifications from 'expo-notifications';
 import { initializeDatabase } from '../src/db/schema';
+import { NOTIF } from '../src/lib/notifications';
 
 function NotificationRouter() {
   const router = useRouter();
@@ -12,7 +13,9 @@ function NotificationRouter() {
   useEffect(() => {
     subRef.current = Notifications.addNotificationResponseReceivedListener((response) => {
       const type = response.notification.request.content.data?.type;
-      if (type === 'daily-prompt') {
+      if (type === NOTIF.WEEKLY || type === NOTIF.MONTHLY) {
+        router.push('/(tabs)/periods');
+      } else if (type === NOTIF.MORNING || type === NOTIF.EVENING) {
         router.push('/(tabs)/today');
       }
     });

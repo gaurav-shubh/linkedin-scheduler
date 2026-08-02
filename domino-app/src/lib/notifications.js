@@ -11,7 +11,15 @@ Notifications.setNotificationHandler({
   }),
 });
 
-export const DAILY_NOTIFICATION_ID_KEY = 'daily_notification_id';
+export const NOTIF = {
+  MORNING: 'daily-prompt',
+  EVENING: 'evening-checkin',
+  WEEKLY: 'weekly-kickoff',
+  MONTHLY: 'monthly-kickoff',
+};
+
+const CHANNEL = 'daily-domino';
+const MONDAY = 2; // expo weekdays: 1 = Sunday
 
 export async function ensurePermission() {
   const current = await Notifications.getPermissionsAsync();
@@ -23,32 +31,103 @@ export async function ensurePermission() {
   return !!requested.granted;
 }
 
-export async function scheduleDailyPrompt(hour, minute) {
-  if (Platform.OS === 'android') {
-    await Notifications.setNotificationChannelAsync('daily-domino', {
-      name: 'Daily Domino',
-      importance: Notifications.AndroidImportance.HIGH,
-    });
-  }
-  await cancelDailyPrompt();
-  const id = await Notifications.scheduleNotificationAsync({
+async function ensureChannel() {
+  if (Platform.OS !== 'android') return undefined;
+  await Notifications.setNotificationChannelAsync(CHANNEL, {
+    name: 'Daily Domino',
+    importance: Notifications.AndroidImportance.HIGH,
+  });
+  return CHANNEL;
+}
+
+/** Cancel every notification this app owns (identified by its data.type). */
+export async function cancelAllPrompts() {
+  const owned = new Set(Object.values(NOTIF));
+  const scheduled = await Notifications.getAllScheduledNotificationsAsync();
+  await Promise.all(
+    scheduled
+      .filter((n) => owned.has(n.content?.data?.type))
+      .map((n) => Notifications.cancelScheduledNotificationAsync(n.identifier))
+  );
+}
+
+/**
+ * Cancels everything and reschedules from the given settings. Idempotent — safe to
+ * call on every settings change without accumulating duplicate notifications.
+ */
+export async function syncNotifications({
+  enabled,
+  morningHour,
+  morningMinute,
+  eveningEnabled,
+  eveningHour,
+  eveningMinute,
+  kickoffEnabled,
+}) {
+  await cancelAllPrompts();
+  if (!enabled) return;
+
+  const channelId = await ensureChannel();
+
+  await Notifications.scheduleNotificationAsync({
     content: {
-      title: 'What\'s your ONE Thing today?',
+      title: "What's your ONE Thing today?",
       body: FOCUSING_QUESTION,
-      data: { type: 'daily-prompt' },
+      data: { type: NOTIF.MORNING },
     },
     trigger: {
       type: Notifications.SchedulableTriggerInputTypes.DAILY,
-      hour,
-      minute,
-      channelId: Platform.OS === 'android' ? 'daily-domino' : undefined,
+      hour: morningHour,
+      minute: morningMinute,
+      channelId,
     },
   });
-  return id;
-}
 
-export async function cancelDailyPrompt() {
-  const scheduled = await Notifications.getAllScheduledNotificationsAsync();
-  const mine = scheduled.filter((n) => n.content?.data?.type === 'daily-prompt');
-  await Promise.all(mine.map((n) => Notifications.cancelScheduledNotificationAsync(n.identifier)));
+  if (eveningEnabled) {
+    await Notifications.scheduleNotificationAsync({
+      content: {
+        title: 'Did you do your ONE Thing?',
+        body: 'Take five seconds to close the loop on today.',
+        data: { type: NOTIF.EVENING },
+      },
+      trigger: {
+        type: Notifications.SchedulableTriggerInputTypes.DAILY,
+        hour: eveningHour,
+        minute: eveningMinute,
+        channelId,
+      },
+    });
+  }
+
+  if (kickoffEnabled) {
+    await Notifications.scheduleNotificationAsync({
+      content: {
+        title: 'New week — set your ONE Thing',
+        body: "What's the ONE thing this week that makes the rest of the month easier?",
+        data: { type: NOTIF.WEEKLY },
+      },
+      trigger: {
+        type: Notifications.SchedulableTriggerInputTypes.WEEKLY,
+        weekday: MONDAY,
+        hour: morningHour,
+        minute: morningMinute,
+        channelId,
+      },
+    });
+
+    await Notifications.scheduleNotificationAsync({
+      content: {
+        title: 'New month — set your ONE Thing',
+        body: "What's the ONE thing this month that moves your one-year goal?",
+        data: { type: NOTIF.MONTHLY },
+      },
+      trigger: {
+        type: Notifications.SchedulableTriggerInputTypes.MONTHLY,
+        day: 1,
+        hour: morningHour,
+        minute: morningMinute,
+        channelId,
+      },
+    });
+  }
 }
