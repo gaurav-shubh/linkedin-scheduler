@@ -1,4 +1,5 @@
 import { useEffect, useRef, useState } from 'react';
+import { View } from 'react-native';
 import { Stack, useRouter } from 'expo-router';
 import { SQLiteProvider } from 'expo-sqlite';
 import { SafeAreaProvider } from 'react-native-safe-area-context';
@@ -12,6 +13,7 @@ import {
 } from '@expo-google-fonts/figtree';
 import { useReducedMotion } from 'react-native-reanimated';
 import { initializeDatabase } from '../src/db/schema';
+import { colors } from '../src/theme';
 import { NOTIF } from '../src/lib/notifications';
 import AnimatedIntro, { INTRO_TOTAL_MS } from '../src/components/AnimatedIntro';
 
@@ -63,19 +65,32 @@ export default function RootLayout() {
     return () => clearTimeout(t);
   }, [ready, reduceMotion]);
 
-  if (!ready) return null;
+  // Never render nothing at the root: an empty first frame can freeze the Android
+  // surface at the wrong size (seen on device as the app occupying part of the
+  // screen with dead space below). While fonts settle, hold a full-bleed navy
+  // frame — visually identical to the splash and the intro that follows it.
+  if (!ready) {
+    return <View style={{ flex: 1, backgroundColor: colors.ink }} />;
+  }
 
   return (
-    <SafeAreaProvider>
-      <SQLiteProvider databaseName="domino.db" onInit={initializeDatabase}>
-        <NotificationRouter />
-        <Stack screenOptions={{ headerShown: false }}>
-          <Stack.Screen name="index" />
-          <Stack.Screen name="onboarding" />
-          <Stack.Screen name="(tabs)" />
-        </Stack>
-        {!introDone && <AnimatedIntro />}
-      </SQLiteProvider>
-    </SafeAreaProvider>
+    <View style={{ flex: 1, backgroundColor: colors.ink }}>
+      <SafeAreaProvider>
+        <SQLiteProvider databaseName="domino.db" onInit={initializeDatabase}>
+          <NotificationRouter />
+          <Stack
+            screenOptions={{
+              headerShown: false,
+              contentStyle: { backgroundColor: colors.background },
+            }}
+          >
+            <Stack.Screen name="index" />
+            <Stack.Screen name="onboarding" />
+            <Stack.Screen name="(tabs)" />
+          </Stack>
+          {!introDone && <AnimatedIntro />}
+        </SQLiteProvider>
+      </SafeAreaProvider>
+    </View>
   );
 }

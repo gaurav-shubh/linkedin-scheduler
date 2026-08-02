@@ -7,12 +7,14 @@
     "orientation": "portrait",
     "icon": "./assets/icon.png",
     "userInterfaceStyle": "light",
+    "backgroundColor": "#0B2239",
     "ios": {
       "supportsTablet": true,
       "bundleIdentifier": "app.domino.tracker"
     },
     "android": {
       "package": "app.domino.tracker",
+      "softwareKeyboardLayoutMode": "pan",
       "adaptiveIcon": {
         "backgroundColor": "#FAF6EF",
         "foregroundImage": "./assets/android-icon-foreground.png",
