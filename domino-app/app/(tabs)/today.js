@@ -1,11 +1,11 @@
 import { useCallback, useState } from 'react';
-import { Pressable, ScrollView, StyleSheet, Text, TextInput, View } from 'react-native';
+import { Pressable, ScrollView, StyleSheet, Text, View } from 'react-native';
 import { useFocusEffect } from 'expo-router';
 import { useSQLiteContext } from 'expo-sqlite';
-import Card from '../../src/components/Card';
 import PromptEditor from '../../src/components/PromptEditor';
 import StaircaseContext from '../../src/components/StaircaseContext';
 import StreakBadge from '../../src/components/StreakBadge';
+import TimeBlock from '../../src/components/TimeBlock';
 import YesterdayReview from '../../src/components/YesterdayReview';
 import {
   countCompletedEntries,
@@ -26,16 +26,25 @@ import {
   DAILY_PROMPT_NO_WEEK,
   MISSING_RUNG,
   PERIOD_LEVELS,
-  TIME_BLOCK_TIP,
 } from '../../src/lib/content';
+import { scheduleTimeBlock } from '../../src/lib/notifications';
+import { shiftTime } from '../../src/lib/schedule';
 import { colors, spacing, typography } from '../../src/theme';
+
+const DEFAULT_BLOCK_HOUR = 9;
+
+/** The book argues for the same block every day, so yesterday's choice seeds today's. */
+function defaultBlockHour(previousEntry) {
+  const prev = previousEntry?.time_block_hour;
+  return prev === null || prev === undefined ? DEFAULT_BLOCK_HOUR : prev;
+}
 
 export default function Today() {
   const db = useSQLiteContext();
   const [loading, setLoading] = useState(true);
   const [entry, setEntry] = useState(null);
   const [yesterday, setYesterday] = useState(null);
-  const [timeBlock, setTimeBlock] = useState('');
+  const [block, setBlock] = useState({ enabled: false, hour: DEFAULT_BLOCK_HOUR, minute: 0 });
   const [context, setContext] = useState({ why: '', oneYear: '', month: '', week: '' });
   const [streak, setStreak] = useState(0);
   const [habit, setHabit] = useState(habitProgress(0, 0));
@@ -67,7 +76,12 @@ export default function Today() {
     ]);
 
     setEntry(dailyEntry);
-    setTimeBlock(dailyEntry?.time_block || '');
+    const hasBlock = dailyEntry?.time_block_hour !== null && dailyEntry?.time_block_hour !== undefined;
+    setBlock({
+      enabled: hasBlock,
+      hour: hasBlock ? dailyEntry.time_block_hour : defaultBlockHour(prevEntry),
+      minute: hasBlock ? dailyEntry.time_block_minute ?? 0 : 0,
+    });
     // Only ask about yesterday if it was actually planned, left unmarked, and not
     // already answered — otherwise the card would nag forever.
     const needsReview =
@@ -92,14 +106,36 @@ export default function Today() {
   );
 
   const saveOneThing = async (text) => {
-    await upsertDailyEntry(db, today, { oneThing: text, timeBlock });
+    await upsertDailyEntry(db, today, {
+      oneThing: text,
+      timeBlockHour: block.enabled ? block.hour : null,
+      timeBlockMinute: block.enabled ? block.minute : null,
+    });
+    if (block.enabled) {
+      await scheduleTimeBlock({ hour: block.hour, minute: block.minute, oneThing: text });
+    }
     await load();
   };
 
-  const saveTimeBlock = async () => {
+  // Persist the block and (re)schedule its reminder in one step, so the stored time and
+  // the pending notification can never drift apart.
+  const applyBlock = async (next) => {
+    setBlock(next);
     if (!entry) return;
-    await upsertDailyEntry(db, today, { oneThing: entry.one_thing, timeBlock });
+    await upsertDailyEntry(db, today, {
+      oneThing: entry.one_thing,
+      timeBlockHour: next.enabled ? next.hour : null,
+      timeBlockMinute: next.enabled ? next.minute : null,
+    });
+    await scheduleTimeBlock({
+      hour: next.enabled ? next.hour : null,
+      minute: next.minute,
+      oneThing: entry.one_thing,
+    });
   };
+
+  const toggleBlock = (enabled) => applyBlock({ ...block, enabled });
+  const shiftBlock = (delta) => applyBlock({ ...block, ...shiftTime(block.hour, block.minute, delta) });
 
   const toggleComplete = async () => {
     if (!entry) return;
@@ -123,6 +159,9 @@ export default function Today() {
   // Walk the staircase top-down and prompt for the highest missing rung, so the daily
   // question always has something real to derive from.
   const missingLevel = !context.month ? 'month' : !context.week ? 'week' : null;
+
+  const now = new Date();
+  const blockHasPassed = block.hour * 60 + block.minute <= now.getHours() * 60 + now.getMinutes();
 
   return (
     <ScrollView style={styles.flex} contentContainerStyle={styles.scroll}>
@@ -181,18 +220,14 @@ export default function Today() {
 
       {!!entry?.one_thing && (
         <>
-          <Card style={styles.spacedTop}>
-            <Text style={typography.label}>TIME BLOCK</Text>
-            <Text style={[typography.muted, styles.italic]}>{TIME_BLOCK_TIP}</Text>
-            <TextInput
-              style={styles.timeInput}
-              value={timeBlock}
-              onChangeText={setTimeBlock}
-              onBlur={saveTimeBlock}
-              placeholder="e.g. 7:00 – 9:00 AM"
-              placeholderTextColor="#999"
-            />
-          </Card>
+          <TimeBlock
+            hour={block.hour}
+            minute={block.minute}
+            enabled={block.enabled}
+            onToggle={toggleBlock}
+            onShift={shiftBlock}
+            passed={block.enabled && blockHasPassed}
+          />
 
           <Pressable onPress={toggleComplete} style={[styles.completeButton, entry.completed && styles.completeButtonDone]}>
             <Text style={[styles.completeText, entry.completed && styles.completeTextDone]}>
@@ -215,15 +250,6 @@ const styles = StyleSheet.create({
   missingWrap: { marginBottom: spacing.md },
   missingHeader: { marginBottom: spacing.sm },
   missingBody: { marginTop: spacing.xs },
-  timeInput: {
-    marginTop: spacing.sm,
-    borderWidth: 1,
-    borderColor: colors.border,
-    borderRadius: 10,
-    padding: spacing.sm,
-    fontSize: 16,
-    color: colors.text,
-  },
   completeButton: {
     marginTop: spacing.md,
     borderRadius: 14,

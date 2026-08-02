@@ -7,6 +7,8 @@ import Button from '../../src/components/Button';
 import { getAllSettings, setSetting } from '../../src/db/queries';
 import { cancelAllPrompts, ensurePermission } from '../../src/lib/notifications';
 import { NOTIFY_DEFAULTS, formatTime, resyncNotifications, shiftTime } from '../../src/lib/schedule';
+import { collectExport, entriesToCsv, exportFilenames } from '../../src/lib/export';
+import { saveAndShare } from '../../src/lib/share';
 import { colors, spacing, typography } from '../../src/theme';
 
 function TimeRow({ label, hour, minute, onShift }) {
@@ -33,6 +35,7 @@ export default function Settings() {
   const [eveningMinute, setEveningMinute] = useState(NOTIFY_DEFAULTS.eveningMinute);
   const [kickoffEnabled, setKickoffEnabled] = useState(NOTIFY_DEFAULTS.kickoffEnabled);
   const [saving, setSaving] = useState(false);
+  const [exporting, setExporting] = useState(null);
 
   const load = useCallback(async () => {
     const s = await getAllSettings(db);
@@ -107,6 +110,33 @@ export default function Settings() {
     setEveningMinute(next.minute);
   };
 
+  const runExport = (format) => async () => {
+    setExporting(format);
+    try {
+      const generatedAt = new Date().toISOString();
+      const payload = await collectExport(db, generatedAt);
+      const names = exportFilenames(generatedAt);
+      const isJson = format === 'json';
+      const result = await saveAndShare({
+        filename: isJson ? names.json : names.csv,
+        contents: isJson
+          ? JSON.stringify(payload, null, 2)
+          : entriesToCsv(payload.dailyEntries),
+        mimeType: isJson ? 'application/json' : 'text/csv',
+        dialogTitle: isJson ? 'Domino backup' : 'Domino daily entries',
+      });
+      if (result.method === 'file') {
+        Alert.alert('Saved', `Sharing isn't available, so the file was written to:\n${result.uri}`);
+      } else if (result.method === 'download') {
+        Alert.alert('Downloaded', `${payload.counts.dailyEntries} entries exported.`);
+      }
+    } catch (e) {
+      Alert.alert('Export failed', e?.message ?? 'Something went wrong writing the file.');
+    } finally {
+      setExporting(null);
+    }
+  };
+
   const resetData = () => {
     Alert.alert(
       'Reset all data?',
@@ -179,6 +209,27 @@ export default function Settings() {
       </Card>
 
       <Button title="Save times" onPress={save} loading={saving} style={styles.spacedTop} />
+
+      <Card style={styles.card}>
+        <Text style={typography.heading}>Export your data</Text>
+        <Text style={[typography.muted, styles.spacedTop]}>
+          Everything lives on this device only. Export a backup so losing your phone doesn't
+          lose your history.
+        </Text>
+        <Button
+          title="Export backup (JSON)"
+          onPress={runExport('json')}
+          loading={exporting === 'json'}
+          style={styles.spacedTop}
+        />
+        <Button
+          title="Export entries (CSV)"
+          variant="secondary"
+          onPress={runExport('csv')}
+          loading={exporting === 'csv'}
+          style={styles.spacedTop}
+        />
+      </Card>
 
       <Card style={styles.card}>
         <Text style={typography.heading}>Reset</Text>

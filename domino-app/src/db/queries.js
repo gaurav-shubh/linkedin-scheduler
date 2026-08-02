@@ -62,14 +62,20 @@ export async function getDailyEntry(db, date) {
   return db.getFirstAsync('SELECT * FROM daily_entries WHERE date = ?', date);
 }
 
-export async function upsertDailyEntry(db, date, { oneThing, timeBlock }) {
+export async function upsertDailyEntry(db, date, { oneThing, timeBlockHour, timeBlockMinute }) {
   const ts = nowIso();
   await db.runAsync(
-    `INSERT INTO daily_entries (date, one_thing, time_block, created_at, updated_at) VALUES (?, ?, ?, ?, ?)
-     ON CONFLICT(date) DO UPDATE SET one_thing = excluded.one_thing, time_block = excluded.time_block, updated_at = excluded.updated_at`,
+    `INSERT INTO daily_entries (date, one_thing, time_block_hour, time_block_minute, created_at, updated_at)
+     VALUES (?, ?, ?, ?, ?, ?)
+     ON CONFLICT(date) DO UPDATE SET
+       one_thing = excluded.one_thing,
+       time_block_hour = excluded.time_block_hour,
+       time_block_minute = excluded.time_block_minute,
+       updated_at = excluded.updated_at`,
     date,
     oneThing,
-    timeBlock ?? null,
+    timeBlockHour ?? null,
+    timeBlockMinute ?? null,
     ts,
     ts
   );

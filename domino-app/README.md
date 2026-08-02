@@ -24,7 +24,20 @@ sits above the staircase so every answer stays tied to a purpose.
 - **History tab**: a 12-week completion heatmap, longest streak, and recent daily entries.
   **Tap any day to correct it** — forgetting to mark something done shouldn't cost a streak
   you actually earned.
-- **Settings**: notification times and toggles, or reset all data.
+- **Settings**: notification times and toggles, **data export**, or reset all data.
+
+### Time blocking
+
+Picking a time block schedules a reminder for it. Earlier this was a free-text note that
+looked like a commitment but did nothing. Your choice carries over to seed the next day,
+since the book argues for the same block every day.
+
+### Export
+
+Everything lives on this device only, so losing the phone would otherwise lose your
+history. Settings exports either a full **JSON backup** (goals, periods, entries,
+settings) or a **CSV of daily entries** for a spreadsheet. On a phone this opens the share
+sheet; in a browser it downloads.
 
 ### Staying on track
 
