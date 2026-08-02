@@ -10,6 +10,7 @@ import {
 } from 'react-native';
 import { useRouter } from 'expo-router';
 import { useSQLiteContext } from 'expo-sqlite';
+import Animated, { FadeInRight } from 'react-native-reanimated';
 import Button from '../src/components/Button';
 import Card from '../src/components/Card';
 import { upsertGoal, setSetting } from '../src/db/queries';
@@ -78,6 +79,7 @@ export default function Onboarding() {
           ))}
         </View>
 
+        <Animated.View key={current.key} entering={FadeInRight.duration(320).springify().damping(19).stiffness(170)}>
         {current.type === 'intro' && (
           <>
             <Text style={styles.wordmark}>Domino</Text>
@@ -131,6 +133,7 @@ export default function Onboarding() {
         {isBlank && !isLast && (
           <Text style={styles.skipHint}>You can fill this in later from the Goals tab.</Text>
         )}
+        </Animated.View>
       </ScrollView>
     </KeyboardAvoidingView>
   );

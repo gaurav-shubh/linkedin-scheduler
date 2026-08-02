@@ -1,4 +1,4 @@
-import { useEffect, useRef } from 'react';
+import { useEffect, useRef, useState } from 'react';
 import { Stack, useRouter } from 'expo-router';
 import { SQLiteProvider } from 'expo-sqlite';
 import { SafeAreaProvider } from 'react-native-safe-area-context';
@@ -12,6 +12,7 @@ import {
 } from '@expo-google-fonts/figtree';
 import { initializeDatabase } from '../src/db/schema';
 import { NOTIF } from '../src/lib/notifications';
+import AnimatedIntro, { INTRO_TOTAL_MS } from '../src/components/AnimatedIntro';
 
 SplashScreen.preventAutoHideAsync().catch(() => {});
 
@@ -35,19 +36,27 @@ function NotificationRouter() {
 }
 
 export default function RootLayout() {
+  const [introDone, setIntroDone] = useState(false);
   const [fontsLoaded, fontError] = useFonts({
     Figtree_500Medium,
     Figtree_700Bold,
     Figtree_800ExtraBold,
   });
+  const ready = fontsLoaded || fontError;
 
   useEffect(() => {
     // Hide the splash once fonts settle either way — a font failure should
     // degrade to system type, never hold the app hostage.
-    if (fontsLoaded || fontError) SplashScreen.hideAsync().catch(() => {});
-  }, [fontsLoaded, fontError]);
+    if (ready) SplashScreen.hideAsync().catch(() => {});
+  }, [ready]);
 
-  if (!fontsLoaded && !fontError) return null;
+  useEffect(() => {
+    if (!ready) return undefined;
+    const t = setTimeout(() => setIntroDone(true), INTRO_TOTAL_MS);
+    return () => clearTimeout(t);
+  }, [ready]);
+
+  if (!ready) return null;
 
   return (
     <SafeAreaProvider>
@@ -58,6 +67,7 @@ export default function RootLayout() {
           <Stack.Screen name="onboarding" />
           <Stack.Screen name="(tabs)" />
         </Stack>
+        {!introDone && <AnimatedIntro />}
       </SQLiteProvider>
     </SafeAreaProvider>
   );

@@ -1,5 +1,29 @@
+import { useEffect } from 'react';
 import { StyleSheet, Text, View } from 'react-native';
+import Animated, {
+  Easing,
+  useAnimatedStyle,
+  useSharedValue,
+  withDelay,
+  withTiming,
+} from 'react-native-reanimated';
 import { colors, elevation, fonts, radius, spacing, typography } from '../theme';
+
+function AnimatedFill({ pct, formed }) {
+  const width = useSharedValue(0);
+
+  useEffect(() => {
+    // Sweep from zero to the current value on mount and on change — the fill
+    // growing is the reward moment, so it always animates.
+    width.value = withDelay(
+      350,
+      withTiming(Math.max(pct, 2), { duration: 700, easing: Easing.out(Easing.cubic) })
+    );
+  }, [pct, width]);
+
+  const style = useAnimatedStyle(() => ({ width: `${width.value}%` }));
+  return <Animated.View style={[styles.fill, formed && styles.fillDone, style]} />;
+}
 
 /**
  * Atoms-style stats: two tiles with oversized numerals, then a rounded progress
@@ -28,13 +52,7 @@ export default function StreakBadge({ streak, habit }) {
           </Text>
         </View>
         <View style={styles.track}>
-          <View
-            style={[
-              styles.fill,
-              { width: `${Math.max(pct, 2)}%` },
-              habit.formed && styles.fillDone,
-            ]}
-          />
+          <AnimatedFill pct={pct} formed={habit.formed} />
         </View>
       </View>
     </View>

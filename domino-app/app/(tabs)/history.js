@@ -3,6 +3,7 @@ import { Pressable, ScrollView, StyleSheet, Text, View } from 'react-native';
 import { useFocusEffect } from 'expo-router';
 import { useSQLiteContext } from 'expo-sqlite';
 import { useSafeAreaInsets } from 'react-native-safe-area-context';
+import Reveal from '../../src/components/Reveal';
 import Card from '../../src/components/Card';
 import CompletionHeatmap from '../../src/components/CompletionHeatmap';
 import StreakBadge from '../../src/components/StreakBadge';
@@ -56,6 +57,7 @@ export default function History() {
 
   return (
     <ScrollView style={styles.flex} contentContainerStyle={[styles.scroll, { paddingTop: insets.top + 12 }]}>
+      <Reveal>
       <Text style={typography.title}>Your History</Text>
       <View style={styles.gap} />
       <StreakBadge streak={streak} habit={habit} />
@@ -90,6 +92,7 @@ export default function History() {
           )}
         </Pressable>
       ))}
+      </Reveal>
     </ScrollView>
   );
 }

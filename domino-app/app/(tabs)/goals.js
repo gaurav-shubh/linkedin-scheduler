@@ -3,6 +3,7 @@ import { ScrollView, StyleSheet, Text, View } from 'react-native';
 import { useFocusEffect } from 'expo-router';
 import { useSQLiteContext } from 'expo-sqlite';
 import { useSafeAreaInsets } from 'react-native-safe-area-context';
+import Reveal from '../../src/components/Reveal';
 import Card from '../../src/components/Card';
 import PromptEditor from '../../src/components/PromptEditor';
 import { getAllGoals, upsertGoal } from '../../src/db/queries';
@@ -31,6 +32,7 @@ export default function Goals() {
 
   return (
     <ScrollView style={styles.flex} contentContainerStyle={[styles.scroll, { paddingTop: insets.top + 12 }]}>
+      <Reveal>
       <Text style={typography.title}>Your Goal Staircase</Text>
       <Text style={[typography.muted, styles.subtitle]}>
         Your why at the top, then big goals broken down to the now. Each level should make the
@@ -58,6 +60,7 @@ export default function Goals() {
           <Text style={[typography.muted, styles.thiefBody]}>{t.body}</Text>
         </Card>
       ))}
+      </Reveal>
     </ScrollView>
   );
 }

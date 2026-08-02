@@ -5,6 +5,7 @@ import { useSQLiteContext } from 'expo-sqlite';
 import { useSafeAreaInsets } from 'react-native-safe-area-context';
 import CheckCircle from '../../src/components/CheckCircle';
 import GreetingHeader from '../../src/components/GreetingHeader';
+import Reveal from '../../src/components/Reveal';
 import PromptEditor from '../../src/components/PromptEditor';
 import StaircaseContext from '../../src/components/StaircaseContext';
 import StreakBadge from '../../src/components/StreakBadge';
@@ -172,66 +173,76 @@ export default function Today() {
 
   return (
     <ScrollView style={styles.flex} contentContainerStyle={[styles.scroll, { paddingTop: insets.top + 12 }]}>
-      <GreetingHeader
-        dateKey={today}
-        hour={now.getHours()}
-        streak={streak}
-        totalCompleted={habit.total}
-        anchor={anchor}
-      />
+      <Reveal delay={0}>
+        <GreetingHeader
+          dateKey={today}
+          hour={now.getHours()}
+          streak={streak}
+          totalCompleted={habit.total}
+          anchor={anchor}
+        />
+      </Reveal>
 
-      <StreakBadge streak={streak} habit={habit} />
+      <Reveal delay={90}>
+        <StreakBadge streak={streak} habit={habit} />
+      </Reveal>
 
       <View style={styles.spacer} />
 
       {!!yesterday && (
-        <YesterdayReview
-          entry={yesterday}
-          onYes={() => resolveYesterday(true)}
-          onNo={() => resolveYesterday(false)}
-        />
-      )}
-
-      {/* The Why already anchors the quote above — repeating it here would be noise. */}
-      <StaircaseContext
-        items={[
-          { label: 'ONE-YEAR GOAL', value: context.oneYear },
-          { label: 'THIS MONTH', value: context.month },
-          { label: 'THIS WEEK', value: context.week },
-        ]}
-      />
-
-      {!!missingLevel && (
-        <View style={styles.missingWrap}>
-          <View style={styles.missingHeader}>
-            <Text style={typography.heading}>{MISSING_RUNG[missingLevel].title}</Text>
-            <Text style={[typography.muted, styles.missingBody]}>
-              {MISSING_RUNG[missingLevel].body}
-            </Text>
-          </View>
-          <PromptEditor
-            // Remount per level; the editor keeps its own draft and `value` stays ""
-            // across the month -> week transition, so it would otherwise carry text over.
-            key={missingLevel}
-            label={PERIOD_LEVELS[missingLevel].label}
-            question={PERIOD_LEVELS[missingLevel].prompt}
-            value=""
-            placeholder="The one thing I'll focus on is..."
-            onSave={saveMissingRung(missingLevel)}
+        <Reveal delay={150}>
+          <YesterdayReview
+            entry={yesterday}
+            onYes={() => resolveYesterday(true)}
+            onNo={() => resolveYesterday(false)}
           />
-        </View>
+        </Reveal>
       )}
 
-      <PromptEditor
-        label="Today"
-        question={context.week ? DAILY_PROMPT : DAILY_PROMPT_NO_WEEK}
-        value={entry?.one_thing}
-        placeholder="The one thing I'll do today is..."
-        onSave={saveOneThing}
-      />
+      <Reveal delay={180}>
+        {/* The Why already anchors the quote above — repeating it here would be noise. */}
+        <StaircaseContext
+          items={[
+            { label: 'ONE-YEAR GOAL', value: context.oneYear },
+            { label: 'THIS MONTH', value: context.month },
+            { label: 'THIS WEEK', value: context.week },
+          ]}
+        />
+
+        {!!missingLevel && (
+          <View style={styles.missingWrap}>
+            <View style={styles.missingHeader}>
+              <Text style={typography.heading}>{MISSING_RUNG[missingLevel].title}</Text>
+              <Text style={[typography.muted, styles.missingBody]}>
+                {MISSING_RUNG[missingLevel].body}
+              </Text>
+            </View>
+            <PromptEditor
+              // Remount per level; the editor keeps its own draft and `value` stays ""
+              // across the month -> week transition, so it would otherwise carry text over.
+              key={missingLevel}
+              label={PERIOD_LEVELS[missingLevel].label}
+              question={PERIOD_LEVELS[missingLevel].prompt}
+              value=""
+              placeholder="The one thing I'll focus on is..."
+              onSave={saveMissingRung(missingLevel)}
+            />
+          </View>
+        )}
+      </Reveal>
+
+      <Reveal delay={260}>
+        <PromptEditor
+          label="Today"
+          question={context.week ? DAILY_PROMPT : DAILY_PROMPT_NO_WEEK}
+          value={entry?.one_thing}
+          placeholder="The one thing I'll do today is..."
+          onSave={saveOneThing}
+        />
+      </Reveal>
 
       {!!entry?.one_thing && (
-        <>
+        <Reveal delay={330}>
           <TimeBlock
             hour={block.hour}
             minute={block.minute}
@@ -242,7 +253,7 @@ export default function Today() {
           />
 
           <CheckCircle done={!!entry.completed} onPress={toggleComplete} />
-        </>
+        </Reveal>
       )}
     </ScrollView>
   );

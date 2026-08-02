@@ -3,6 +3,7 @@ import { Pressable, ScrollView, StyleSheet, Text, View } from 'react-native';
 import { useFocusEffect } from 'expo-router';
 import { useSQLiteContext } from 'expo-sqlite';
 import { useSafeAreaInsets } from 'react-native-safe-area-context';
+import Reveal from '../../src/components/Reveal';
 import Card from '../../src/components/Card';
 import PromptEditor from '../../src/components/PromptEditor';
 import StaircaseContext from '../../src/components/StaircaseContext';
@@ -64,6 +65,7 @@ export default function Periods() {
 
   return (
     <ScrollView style={styles.flex} contentContainerStyle={[styles.scroll, { paddingTop: insets.top + 12 }]}>
+      <Reveal>
       <View style={styles.switcher}>
         <Pressable onPress={() => setTab('week')} style={[styles.switchBtn, tab === 'week' && styles.switchBtnActive]}>
           <Text style={[styles.switchText, tab === 'week' && styles.switchTextActive]}>This Week</Text>
@@ -99,6 +101,7 @@ export default function Periods() {
           ))}
         </View>
       )}
+      </Reveal>
     </ScrollView>
   );
 }

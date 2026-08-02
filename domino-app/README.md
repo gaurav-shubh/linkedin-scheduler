@@ -39,6 +39,14 @@ history. Settings exports either a full **JSON backup** (goals, periods, entries
 settings) or a **CSV of daily entries** for a spreadsheet. On a phone this opens the share
 sheet; in a browser it downloads.
 
+### Motion
+
+Opening the app plays a short branded intro — three dominoes tip in sequence under the
+wordmark, then the navy overlay dissolves into the day. Screen content cascades in with
+staggered spring reveals, the check-in circle springs on press and fills green when done
+(with haptic feedback on device), the 66-day bar sweeps to its value, and onboarding
+steps slide in as you advance.
+
 ### The open-the-app moment
 
 Today greets you by time of day with one quote chosen for where you actually are —

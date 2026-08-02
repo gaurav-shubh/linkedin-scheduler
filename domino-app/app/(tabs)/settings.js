@@ -3,6 +3,7 @@ import { Alert, ScrollView, StyleSheet, Switch, Text, View } from 'react-native'
 import { useFocusEffect, useRouter } from 'expo-router';
 import { useSQLiteContext } from 'expo-sqlite';
 import { useSafeAreaInsets } from 'react-native-safe-area-context';
+import Reveal from '../../src/components/Reveal';
 import Card from '../../src/components/Card';
 import Button from '../../src/components/Button';
 import { getAllSettings, setSetting } from '../../src/db/queries';
@@ -162,6 +163,7 @@ export default function Settings() {
 
   return (
     <ScrollView style={styles.flex} contentContainerStyle={[styles.scroll, { paddingTop: insets.top + 12 }]}>
+      <Reveal>
       <Text style={typography.title}>Settings</Text>
 
       <Card style={styles.card}>
@@ -240,6 +242,7 @@ export default function Settings() {
         </Text>
         <Button title="Reset all data" variant="secondary" onPress={resetData} style={styles.spacedTop} />
       </Card>
+      </Reveal>
     </ScrollView>
   );
 }
