@@ -108,7 +108,7 @@ export default function Periods() {
 
 const styles = StyleSheet.create({
   flex: { flex: 1, backgroundColor: colors.background },
-  scroll: { padding: spacing.lg, paddingBottom: spacing.xl },
+  scroll: { padding: spacing.lg, paddingBottom: spacing.xl * 2 },
   title: { marginBottom: spacing.md },
   spacedTop: { marginTop: spacing.lg, gap: spacing.sm },
   pastCard: { marginTop: spacing.sm },

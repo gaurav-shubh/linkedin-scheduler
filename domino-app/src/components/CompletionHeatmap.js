@@ -1,6 +1,6 @@
 import { StyleSheet, Text, View } from 'react-native';
 import { addDays, dateKey } from '../lib/dates';
-import { colors, spacing } from '../theme';
+import { colors, fonts, spacing } from '../theme';
 
 // Renders the trailing `weeks` weeks as columns of 7 days (GitHub-style), ending today.
 export default function CompletionHeatmap({ entriesByDate, weeks = 12 }) {
@@ -52,5 +52,5 @@ const styles = StyleSheet.create({
   col: { gap: 3 },
   cell: { width: CELL, height: CELL, borderRadius: 3 },
   legendRow: { flexDirection: 'row', alignItems: 'center', gap: 4, flexWrap: 'wrap' },
-  legendText: { fontSize: 11, color: colors.textMuted, marginRight: spacing.sm },
+  legendText: { fontFamily: fonts.medium, fontSize: 11, color: colors.textMuted, marginRight: spacing.sm },
 });

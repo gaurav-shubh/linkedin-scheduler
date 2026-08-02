@@ -261,7 +261,7 @@ export default function Today() {
 
 const styles = StyleSheet.create({
   flex: { flex: 1, backgroundColor: colors.background },
-  scroll: { padding: spacing.lg, paddingBottom: spacing.xl },
+  scroll: { padding: spacing.lg, paddingBottom: spacing.xl * 2 },
   spacer: { height: spacing.md },
   missingWrap: { marginBottom: spacing.md },
   missingHeader: { marginBottom: spacing.sm },

@@ -250,7 +250,7 @@ export default function Settings() {
 const styles = StyleSheet.create({
   flex: { flex: 1, backgroundColor: colors.background },
   flex1: { flex: 1 },
-  scroll: { padding: spacing.lg, paddingBottom: spacing.xl },
+  scroll: { padding: spacing.lg, paddingBottom: spacing.xl * 2 },
   card: { marginTop: spacing.lg },
   row: { flexDirection: 'row', alignItems: 'center', gap: spacing.md },
   timeCaption: { marginTop: spacing.md, textAlign: 'center' },

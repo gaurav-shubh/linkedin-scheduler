@@ -67,7 +67,7 @@ export default function Goals() {
 
 const styles = StyleSheet.create({
   flex: { flex: 1, backgroundColor: colors.background },
-  scroll: { padding: spacing.lg, paddingBottom: spacing.xl },
+  scroll: { padding: spacing.lg, paddingBottom: spacing.xl * 2 },
   subtitle: { marginTop: spacing.xs, marginBottom: spacing.lg },
   goalItem: { marginBottom: spacing.md },
   gap: { height: spacing.md },
