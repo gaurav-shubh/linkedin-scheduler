@@ -1,0 +1,27 @@
+import { Easing, FadeInDown, useReducedMotion } from 'react-native-reanimated';
+import Animated from 'react-native-reanimated';
+
+/**
+ * Staggered entrance used across screens. Deliberately overdamped: content rises on
+ * an ease-out curve with no wobble — text that oscillates reads as machinery, not
+ * design. Honors the system reduce-motion setting.
+ *
+ * NOTE: keep this to the stock FadeInDown builder — `withInitialValues` breaks
+ * layout on react-native-web (views settle at the wrong offsets).
+ */
+export default function Reveal({ delay = 0, children, style }) {
+  const reduceMotion = useReducedMotion();
+
+  if (reduceMotion) {
+    return <Animated.View style={style}>{children}</Animated.View>;
+  }
+
+  return (
+    <Animated.View
+      entering={FadeInDown.duration(380).delay(delay).easing(Easing.out(Easing.cubic))}
+      style={style}
+    >
+      {children}
+    </Animated.View>
+  );
+}
