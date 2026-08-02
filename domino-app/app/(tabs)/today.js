@@ -25,15 +25,16 @@ export default function Today() {
   const [loading, setLoading] = useState(true);
   const [entry, setEntry] = useState(null);
   const [timeBlock, setTimeBlock] = useState('');
-  const [context, setContext] = useState({ oneYear: '', month: '', week: '' });
+  const [context, setContext] = useState({ why: '', oneYear: '', month: '', week: '' });
   const [streak, setStreak] = useState(0);
   const [habit, setHabit] = useState(habitProgress(0));
 
   const today = dateKey();
 
   const load = useCallback(async () => {
-    const [dailyEntry, oneYearGoal, monthPeriod, weekPeriod, recentEntries, completedCount] = await Promise.all([
+    const [dailyEntry, whyGoal, oneYearGoal, monthPeriod, weekPeriod, recentEntries, completedCount] = await Promise.all([
       getDailyEntry(db, today),
+      getGoal(db, 'why'),
       getGoal(db, 'one_year'),
       getPeriod(db, 'month', monthKey()),
       getPeriod(db, 'week', weekKey()),
@@ -43,6 +44,7 @@ export default function Today() {
     setEntry(dailyEntry);
     setTimeBlock(dailyEntry?.time_block || '');
     setContext({
+      why: whyGoal?.text || '',
       oneYear: oneYearGoal?.text || '',
       month: monthPeriod?.one_thing || '',
       week: weekPeriod?.one_thing || '',
@@ -87,6 +89,7 @@ export default function Today() {
 
       <StaircaseContext
         items={[
+          { label: 'YOUR WHY', value: context.why },
           { label: 'ONE-YEAR GOAL', value: context.oneYear },
           { label: 'THIS MONTH', value: context.month },
           { label: 'THIS WEEK', value: context.week },

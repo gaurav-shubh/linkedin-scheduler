@@ -1,8 +1,17 @@
-// Original paraphrase of concepts from "The ONE Thing" by Gary Keller & Jay Papasan.
+// Original paraphrase of concepts from "The ONE Thing" by Gary Keller & Jay Papasan,
+// plus a single purpose anchor inspired by Simon Sinek's "Start With Why".
 // Not verbatim book text — short framework names/questions are used for reference only.
 
 export const FOCUSING_QUESTION =
   "What's the ONE Thing I can do such that by doing it everything else will be easier or unnecessary?";
+
+export const WHY = {
+  key: 'why',
+  label: 'Your Why',
+  short: 'Why',
+  prompt: "What's your Why — the belief or cause that makes this all worth pursuing?",
+  helper: 'Optional. This sits above the staircase as the purpose everything else ladders up to.',
+};
 
 export const GOAL_LEVELS = [
   {
@@ -70,10 +79,10 @@ export const ONBOARDING_INTRO = [
   },
   {
     title: 'Goal setting to the now',
-    body: 'Big goals get broken down into a staircase: someday → five years → one year → this month → this week → today. Each step should make the step above it easier.',
+    body: 'Big goals get broken down into a staircase: your why → someday → five years → one year → this month → this week → today. Each step should make the step above it easier.',
   },
   {
     title: "Let's set your staircase",
-    body: "We'll start from the top (your someday goal) and work down. You can always edit these later from the Goals tab.",
+    body: "We'll start from the top (your why and someday goal) and work down. You can always edit these later from the Goals tab.",
   },
 ];

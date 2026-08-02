@@ -1,18 +1,18 @@
 {
   "expo": {
-    "name": "The ONE Thing",
-    "slug": "one-thing-app",
-    "scheme": "onething",
+    "name": "Domino",
+    "slug": "domino-app",
+    "scheme": "domino",
     "version": "1.0.0",
     "orientation": "portrait",
     "icon": "./assets/icon.png",
     "userInterfaceStyle": "light",
     "ios": {
       "supportsTablet": true,
-      "bundleIdentifier": "app.onething.tracker"
+      "bundleIdentifier": "app.domino.tracker"
     },
     "android": {
-      "package": "app.onething.tracker",
+      "package": "app.domino.tracker",
       "adaptiveIcon": {
         "backgroundColor": "#E6F4FE",
         "foregroundImage": "./assets/android-icon-foreground.png",

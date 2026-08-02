@@ -13,6 +13,7 @@ import { colors, spacing, typography } from '../../src/theme';
 export default function Periods() {
   const db = useSQLiteContext();
   const [tab, setTab] = useState('week');
+  const [why, setWhy] = useState('');
   const [oneYear, setOneYear] = useState('');
   const [monthOneThing, setMonthOneThing] = useState('');
   const [current, setCurrent] = useState(null);
@@ -22,12 +23,14 @@ export default function Periods() {
   const label = tab === 'week' ? weekRangeLabel(periodKey) : monthLabel(periodKey);
 
   const load = useCallback(async () => {
-    const [oneYearGoal, monthPeriod, currentPeriod, pastPeriods] = await Promise.all([
+    const [whyGoal, oneYearGoal, monthPeriod, currentPeriod, pastPeriods] = await Promise.all([
+      getGoal(db, 'why'),
       getGoal(db, 'one_year'),
       getPeriod(db, 'month', monthKey()),
       getPeriod(db, tab, periodKey),
       listPeriods(db, tab, 8),
     ]);
+    setWhy(whyGoal?.text || '');
     setOneYear(oneYearGoal?.text || '');
     setMonthOneThing(monthPeriod?.one_thing || '');
     setCurrent(currentPeriod);
@@ -48,10 +51,14 @@ export default function Periods() {
   const staircaseItems =
     tab === 'week'
       ? [
+          { label: 'YOUR WHY', value: why },
           { label: 'ONE-YEAR GOAL', value: oneYear },
           { label: 'THIS MONTH', value: monthOneThing },
         ]
-      : [{ label: 'ONE-YEAR GOAL', value: oneYear }];
+      : [
+          { label: 'YOUR WHY', value: why },
+          { label: 'ONE-YEAR GOAL', value: oneYear },
+        ];
 
   return (
     <ScrollView style={styles.flex} contentContainerStyle={styles.scroll}>

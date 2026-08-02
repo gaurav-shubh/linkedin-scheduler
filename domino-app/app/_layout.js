@@ -25,7 +25,7 @@ function NotificationRouter() {
 export default function RootLayout() {
   return (
     <SafeAreaProvider>
-      <SQLiteProvider databaseName="onething.db" onInit={initializeDatabase}>
+      <SQLiteProvider databaseName="domino.db" onInit={initializeDatabase}>
         <NotificationRouter />
         <Stack screenOptions={{ headerShown: false }}>
           <Stack.Screen name="index" />

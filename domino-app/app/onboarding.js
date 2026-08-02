@@ -14,11 +14,12 @@ import Button from '../src/components/Button';
 import Card from '../src/components/Card';
 import { upsertGoal, setSetting } from '../src/db/queries';
 import { ensurePermission, scheduleDailyPrompt } from '../src/lib/notifications';
-import { GOAL_LEVELS, ONBOARDING_INTRO } from '../src/lib/content';
+import { GOAL_LEVELS, ONBOARDING_INTRO, WHY } from '../src/lib/content';
 import { colors, spacing, typography } from '../src/theme';
 
 const STEPS = [
   ...ONBOARDING_INTRO.map((intro, i) => ({ type: 'intro', ...intro, key: `intro-${i}` })),
+  { type: 'why', ...WHY, key: WHY.key },
   ...GOAL_LEVELS.map((g) => ({ type: 'goal', ...g, key: g.key })),
   { type: 'notify', key: 'notify' },
 ];
@@ -36,7 +37,7 @@ export default function Onboarding() {
   const isLast = step === STEPS.length - 1;
 
   const goNext = async () => {
-    if (current.type === 'goal') {
+    if (current.type === 'goal' || current.type === 'why') {
       await upsertGoal(db, current.key, (answers[current.key] || '').trim());
     }
     if (isLast) {
@@ -78,7 +79,7 @@ export default function Onboarding() {
           </Card>
         )}
 
-        {current.type === 'goal' && (
+        {(current.type === 'goal' || current.type === 'why') && (
           <Card style={styles.card}>
             <Text style={typography.label}>{current.label.toUpperCase()}</Text>
             <Text style={[typography.body, styles.spacedTop, styles.italic]}>{current.prompt}</Text>
@@ -89,7 +90,7 @@ export default function Onboarding() {
               autoFocus
               value={answers[current.key] || ''}
               onChangeText={(text) => setAnswers((a) => ({ ...a, [current.key]: text }))}
-              placeholder="Type your answer..."
+              placeholder={current.type === 'why' ? 'Type your answer, or skip for now...' : 'Type your answer...'}
               placeholderTextColor="#999"
             />
           </Card>

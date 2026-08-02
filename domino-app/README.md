@@ -1,22 +1,26 @@
-# The ONE Thing — daily tracker
+# Domino — daily focus tracker
+
+Named for the Domino Effect: one right thing knocks down the next.
 
 A mobile app based on *The ONE Thing* by Gary Keller & Jay Papasan. Every morning it asks
 the book's Focusing Question and helps you keep your daily, weekly, monthly, one-year and
 someday goals lined up on one staircase — then tracks whether you actually did your ONE
-Thing each day.
+Thing each day. An optional "Your Why" anchor (inspired by Simon Sinek's *Start With Why*)
+sits above the staircase so every answer stays tied to a purpose.
 
 ## What it does
 
-- **Onboarding**: a short explainer of the book's ideas, then sets your Someday Goal,
-  Five-Year Goal and One-Year Goal, and your preferred morning notification time.
-- **Today tab**: shows the week/month/year context above the question, asks *"Based on
+- **Onboarding**: a short explainer of the ideas, then captures your optional Why plus your
+  Someday Goal, Five-Year Goal and One-Year Goal, and your preferred morning notification
+  time.
+- **Today tab**: shows the why/year/month/week context above the question, asks *"Based on
   this week's ONE thing, what's the ONE thing you can do today?"*, lets you note a time
   block for it, and mark it done. Shows your current streak and progress through a 66-day
   habit cycle.
 - **Week & Month tab**: same staircase logic for the current week and month, plus a history
   of past weeks/months.
-- **Goals tab**: edit your Someday / Five-Year / One-Year goals, plus a reminder of the
-  book's "Four Thieves of Focus".
+- **Goals tab**: edit your Why and your Someday / Five-Year / One-Year goals, plus a
+  reminder of the book's "Four Thieves of Focus".
 - **History tab**: a 12-week completion heatmap and a list of recent daily entries.
 - **Settings**: change/disable the daily notification time, or reset all data.
 - **Daily local notification**: fires at the time you chose (default 7:00 AM) with the
@@ -28,7 +32,7 @@ network calls.
 ## Running it
 
 ```bash
-cd one-thing-app
+cd domino-app
 npm install
 npx expo start
 ```
@@ -65,7 +69,8 @@ app/                  expo-router screens
 src/
   db/                  SQLite schema + query helpers
   lib/                 date/week/month key math, streak & habit-cycle math,
-                        notification scheduling, the book's framework copy
+                        notification scheduling, the framework copy (prompts,
+                        Four Thieves, Why)
   components/          shared UI (prompt editor, streak badges, heatmap, ...)
 ```
 

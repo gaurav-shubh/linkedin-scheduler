@@ -5,7 +5,7 @@ import { useSQLiteContext } from 'expo-sqlite';
 import Card from '../../src/components/Card';
 import PromptEditor from '../../src/components/PromptEditor';
 import { getAllGoals, upsertGoal } from '../../src/db/queries';
-import { FOUR_THIEVES, GOAL_LEVELS } from '../../src/lib/content';
+import { FOUR_THIEVES, GOAL_LEVELS, WHY } from '../../src/lib/content';
 import { colors, spacing, typography } from '../../src/theme';
 
 export default function Goals() {
@@ -31,10 +31,11 @@ export default function Goals() {
     <ScrollView style={styles.flex} contentContainerStyle={styles.scroll}>
       <Text style={typography.title}>Your Goal Staircase</Text>
       <Text style={[typography.muted, styles.subtitle]}>
-        Big goals broken down to the now. Each level should make the level above it easier.
+        Your why at the top, then big goals broken down to the now. Each level should make the
+        level above it easier.
       </Text>
 
-      {GOAL_LEVELS.map((g) => (
+      {[WHY, ...GOAL_LEVELS].map((g) => (
         <View key={g.key} style={styles.goalItem}>
           <PromptEditor
             label={g.label}

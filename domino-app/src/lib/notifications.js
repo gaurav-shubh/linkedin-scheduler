@@ -25,8 +25,8 @@ export async function ensurePermission() {
 
 export async function scheduleDailyPrompt(hour, minute) {
   if (Platform.OS === 'android') {
-    await Notifications.setNotificationChannelAsync('daily-one-thing', {
-      name: 'Daily ONE Thing',
+    await Notifications.setNotificationChannelAsync('daily-domino', {
+      name: 'Daily Domino',
       importance: Notifications.AndroidImportance.HIGH,
     });
   }
@@ -41,7 +41,7 @@ export async function scheduleDailyPrompt(hour, minute) {
       type: Notifications.SchedulableTriggerInputTypes.DAILY,
       hour,
       minute,
-      channelId: Platform.OS === 'android' ? 'daily-one-thing' : undefined,
+      channelId: Platform.OS === 'android' ? 'daily-domino' : undefined,
     },
   });
   return id;
