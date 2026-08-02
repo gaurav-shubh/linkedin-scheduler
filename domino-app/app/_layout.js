@@ -5,10 +5,11 @@ import { SafeAreaProvider } from 'react-native-safe-area-context';
 import * as Notifications from 'expo-notifications';
 import * as SplashScreen from 'expo-splash-screen';
 import {
-  Fraunces_400Regular_Italic,
-  Fraunces_600SemiBold,
+  Figtree_500Medium,
+  Figtree_700Bold,
+  Figtree_800ExtraBold,
   useFonts,
-} from '@expo-google-fonts/fraunces';
+} from '@expo-google-fonts/figtree';
 import { initializeDatabase } from '../src/db/schema';
 import { NOTIF } from '../src/lib/notifications';
 
@@ -35,8 +36,9 @@ function NotificationRouter() {
 
 export default function RootLayout() {
   const [fontsLoaded, fontError] = useFonts({
-    Fraunces_600SemiBold,
-    Fraunces_400Regular_Italic,
+    Figtree_500Medium,
+    Figtree_700Bold,
+    Figtree_800ExtraBold,
   });
 
   useEffect(() => {

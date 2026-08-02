@@ -52,7 +52,7 @@ export default function PromptEditor({ label, question, value, placeholder, onSa
 }
 
 const styles = StyleSheet.create({
-  question: { marginTop: spacing.xs, fontStyle: 'italic' },
+  question: { marginTop: spacing.xs },
   input: {
     marginTop: spacing.sm,
     borderWidth: 1,

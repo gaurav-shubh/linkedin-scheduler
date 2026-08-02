@@ -1,5 +1,5 @@
 import { ActivityIndicator, Pressable, StyleSheet, Text } from 'react-native';
-import { colors, elevation, radius, spacing } from '../theme';
+import { colors, elevation, fonts, radius, spacing } from '../theme';
 
 export default function Button({ title, onPress, variant = 'primary', disabled, loading, style }) {
   const isPrimary = variant === 'primary';
@@ -31,19 +31,20 @@ export default function Button({ title, onPress, variant = 'primary', disabled, 
 }
 
 const styles = StyleSheet.create({
+  // Chunky rounded-rect, bold label — reads as a solid tappable block.
   base: {
-    borderRadius: radius.pill,
-    paddingVertical: spacing.sm + 6,
+    borderRadius: radius.sm + 4,
+    paddingVertical: spacing.md - 2,
     paddingHorizontal: spacing.lg,
     alignItems: 'center',
     justifyContent: 'center',
   },
-  primary: { backgroundColor: colors.primary },
-  secondary: { backgroundColor: 'transparent', borderWidth: 1.5, borderColor: colors.primary },
+  primary: { backgroundColor: colors.ink },
+  secondary: { backgroundColor: 'transparent', borderWidth: 2, borderColor: colors.ink },
   ghost: { backgroundColor: 'transparent' },
-  disabled: { opacity: 0.45 },
-  pressed: { opacity: 0.85, transform: [{ scale: 0.985 }] },
-  text: { fontSize: 16, fontWeight: '600', letterSpacing: 0.2 },
+  disabled: { opacity: 0.4 },
+  pressed: { opacity: 0.88, transform: [{ scale: 0.985 }] },
+  text: { fontFamily: fonts.bold, fontSize: 16, letterSpacing: 0.2 },
   textPrimary: { color: '#fff' },
-  textSecondary: { color: colors.primary },
+  textSecondary: { color: colors.ink },
 });

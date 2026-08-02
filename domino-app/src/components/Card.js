@@ -6,11 +6,10 @@ export default function Card({ children, style, flat = false }) {
 }
 
 const styles = StyleSheet.create({
+  // Borderless, big-radius, soft shadow — the Atoms card look.
   card: {
     backgroundColor: colors.surface,
     borderRadius: radius.md,
     padding: spacing.md,
-    borderWidth: 1,
-    borderColor: colors.border,
   },
 });

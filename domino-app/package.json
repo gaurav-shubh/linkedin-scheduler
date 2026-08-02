@@ -3,7 +3,7 @@
   "version": "1.0.0",
   "main": "expo-router/entry",
   "dependencies": {
-    "@expo-google-fonts/fraunces": "^0.4.1",
+    "@expo-google-fonts/figtree": "^0.4.1",
     "expo": "~57.0.9",
     "expo-constants": "~57.0.8",
     "expo-device": "~57.0.1",

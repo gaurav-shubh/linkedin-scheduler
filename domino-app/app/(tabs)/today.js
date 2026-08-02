@@ -1,8 +1,9 @@
 import { useCallback, useState } from 'react';
-import { Pressable, ScrollView, StyleSheet, Text, View } from 'react-native';
+import { ScrollView, StyleSheet, Text, View } from 'react-native';
 import { useFocusEffect } from 'expo-router';
 import { useSQLiteContext } from 'expo-sqlite';
 import { useSafeAreaInsets } from 'react-native-safe-area-context';
+import CheckCircle from '../../src/components/CheckCircle';
 import GreetingHeader from '../../src/components/GreetingHeader';
 import PromptEditor from '../../src/components/PromptEditor';
 import StaircaseContext from '../../src/components/StaircaseContext';
@@ -240,11 +241,7 @@ export default function Today() {
             passed={block.enabled && blockHasPassed}
           />
 
-          <Pressable onPress={toggleComplete} style={[styles.completeButton, entry.completed && styles.completeButtonDone]}>
-            <Text style={[styles.completeText, entry.completed && styles.completeTextDone]}>
-              {entry.completed ? '✓ Done today' : 'Mark as done'}
-            </Text>
-          </Pressable>
+          <CheckCircle done={!!entry.completed} onPress={toggleComplete} />
         </>
       )}
     </ScrollView>
@@ -256,19 +253,7 @@ const styles = StyleSheet.create({
   scroll: { padding: spacing.lg, paddingBottom: spacing.xl },
   spacer: { height: spacing.md },
   spacedTop: { marginTop: spacing.md },
-  italic: { fontStyle: 'italic', marginTop: 2 },
   missingWrap: { marginBottom: spacing.md },
   missingHeader: { marginBottom: spacing.sm },
   missingBody: { marginTop: spacing.xs },
-  completeButton: {
-    marginTop: spacing.md,
-    borderRadius: 14,
-    paddingVertical: spacing.md,
-    alignItems: 'center',
-    borderWidth: 1,
-    borderColor: colors.primary,
-  },
-  completeButtonDone: { backgroundColor: colors.primary },
-  completeText: { color: colors.primary, fontWeight: '700', fontSize: 16 },
-  completeTextDone: { color: '#fff' },
 });

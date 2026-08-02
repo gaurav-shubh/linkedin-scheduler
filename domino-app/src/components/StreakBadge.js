@@ -1,28 +1,42 @@
 import { StyleSheet, Text, View } from 'react-native';
-import { colors, radius, spacing } from '../theme';
+import { colors, elevation, fonts, radius, spacing, typography } from '../theme';
 
+/**
+ * Atoms-style stats: two tiles with oversized numerals, then a rounded progress
+ * bar toward the 66-day habit mark based on the current streak.
+ */
 export default function StreakBadge({ streak, habit }) {
+  const pct = Math.min(100, Math.round((habit.dayInCycle / habit.cycleLength) * 100));
   return (
     <View style={styles.wrap}>
       <View style={styles.row}>
-        <View style={styles.badge}>
-          <Text style={styles.emoji}>🔥</Text>
-          <View style={styles.flex}>
-            <Text style={styles.num}>{streak}</Text>
-            <Text style={styles.label}>day streak</Text>
-          </View>
+        <View style={[styles.tile, elevation.card]}>
+          <Text style={styles.numeral}>{streak}</Text>
+          <Text style={styles.tileLabel}>day streak</Text>
         </View>
-        <View style={styles.badge}>
-          <Text style={styles.emoji}>{habit.formed ? '🌱' : '📅'}</Text>
-          <View style={styles.flex}>
-            <Text style={styles.num}>{habit.dayInCycle}/{habit.cycleLength}</Text>
-            <Text style={styles.label}>{habit.formed ? 'habit formed' : 'to habit'}</Text>
-          </View>
+        <View style={[styles.tile, elevation.card]}>
+          <Text style={styles.numeral}>{habit.total}</Text>
+          <Text style={styles.tileLabel}>all-time</Text>
         </View>
       </View>
-      <Text style={styles.total}>
-        {habit.total} {habit.total === 1 ? 'day' : 'days'} focused all-time
-      </Text>
+
+      <View style={[styles.progressCard, elevation.card]}>
+        <View style={styles.progressHeader}>
+          <Text style={styles.progressTitle}>{habit.formed ? 'Habit formed' : 'To habit'}</Text>
+          <Text style={styles.progressCount}>
+            {habit.dayInCycle}/{habit.cycleLength}
+          </Text>
+        </View>
+        <View style={styles.track}>
+          <View
+            style={[
+              styles.fill,
+              { width: `${Math.max(pct, 2)}%` },
+              habit.formed && styles.fillDone,
+            ]}
+          />
+        </View>
+      </View>
     </View>
   );
 }
@@ -30,20 +44,38 @@ export default function StreakBadge({ streak, habit }) {
 const styles = StyleSheet.create({
   wrap: { gap: spacing.sm },
   row: { flexDirection: 'row', gap: spacing.sm },
-  flex: { flex: 1 },
-  total: { fontSize: 12, color: colors.textMuted, textAlign: 'center' },
-  badge: {
+  tile: {
     flex: 1,
-    flexDirection: 'row',
-    alignItems: 'center',
-    gap: spacing.sm,
     backgroundColor: colors.surface,
     borderRadius: radius.md,
-    borderWidth: 1,
-    borderColor: colors.border,
-    padding: spacing.sm,
+    paddingVertical: spacing.md,
+    alignItems: 'center',
   },
-  emoji: { fontSize: 24 },
-  num: { fontSize: 18, fontWeight: '700', color: colors.text },
-  label: { fontSize: 12, color: colors.textMuted },
+  numeral: { ...typography.numeral },
+  tileLabel: { ...typography.muted, marginTop: 2 },
+  progressCard: {
+    backgroundColor: colors.surface,
+    borderRadius: radius.md,
+    padding: spacing.md,
+  },
+  progressHeader: {
+    flexDirection: 'row',
+    justifyContent: 'space-between',
+    alignItems: 'center',
+    marginBottom: spacing.sm,
+  },
+  progressTitle: { fontFamily: fonts.bold, fontSize: 14, color: colors.text },
+  progressCount: { fontFamily: fonts.bold, fontSize: 14, color: colors.textMuted },
+  track: {
+    height: 10,
+    borderRadius: 5,
+    backgroundColor: colors.surfaceAlt,
+    overflow: 'hidden',
+  },
+  fill: {
+    height: '100%',
+    borderRadius: 5,
+    backgroundColor: colors.accent,
+  },
+  fillDone: { backgroundColor: colors.success },
 });

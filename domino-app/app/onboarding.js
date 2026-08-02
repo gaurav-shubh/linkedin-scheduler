@@ -141,7 +141,7 @@ const styles = StyleSheet.create({
   scroll: { padding: spacing.lg, paddingTop: spacing.xl * 1.5, flexGrow: 1, justifyContent: 'center' },
   card: { marginBottom: spacing.md },
   spacedTop: { marginTop: spacing.md },
-  italic: { fontStyle: 'italic' },
+  italic: {},
   input: {
     marginTop: spacing.md,
     borderWidth: 1,

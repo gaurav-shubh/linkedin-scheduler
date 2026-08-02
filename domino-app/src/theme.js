@@ -1,23 +1,27 @@
 import { Platform } from 'react-native';
 
-// Warm editorial palette: deep ink green on cream, with a brass accent used
-// sparingly for actions and emphasis — never for large surfaces.
+// Atoms-style language: deep navy ink on warm cream, one coral action color,
+// big rounded shapes, chunky geometric type, oversized numerals.
 export const colors = {
-  background: '#F7F3EB',
+  background: '#FAF6EF',
   surface: '#FFFFFF',
-  surfaceAlt: '#EFE9DD',
-  primary: '#22432B',
-  primaryDark: '#16301E',
-  primarySoft: '#E3EBE2',
-  accent: '#B07A32',
-  accentSoft: '#F4E8D4',
-  text: '#1E241F',
-  textMuted: '#70756C',
-  border: '#E4DDCE',
-  success: '#22432B',
-  danger: '#A94B32',
-  overlayDone: '#DCE7DB',
-  overlayMissed: '#EFD9CE',
+  surfaceAlt: '#F1EAE0',
+  ink: '#0B2239',
+  primary: '#0B2239',
+  primaryDark: '#061627',
+  primarySoft: '#E7EDF3',
+  accent: '#F4633A',
+  accentSoft: '#FDE8E0',
+  text: '#0B2239',
+  textMuted: '#6E7B89',
+  textOnInk: '#FFFFFF',
+  mutedOnInk: '#9FB3C8',
+  border: '#E8E1D5',
+  success: '#1F7A53',
+  successSoft: '#DEF0E6',
+  danger: '#C2452D',
+  overlayDone: '#DEF0E6',
+  overlayMissed: '#F8DFD5',
 };
 
 export const spacing = {
@@ -29,55 +33,56 @@ export const spacing = {
 };
 
 export const radius = {
-  sm: 10,
-  md: 16,
-  lg: 24,
+  sm: 12,
+  md: 20,
+  lg: 28,
   pill: 999,
 };
 
-// Fraunces carries the display voice; body text stays on the system stack for
-// legibility at small sizes. Fonts are loaded once in the root layout.
+// Figtree is the closest open face to Circular — geometric, rounded, friendly-bold.
 export const fonts = {
-  display: 'Fraunces_600SemiBold',
-  displayItalic: 'Fraunces_400Regular_Italic',
+  display: 'Figtree_800ExtraBold',
+  displayItalic: 'Figtree_700Bold',
+  bold: 'Figtree_700Bold',
+  medium: 'Figtree_500Medium',
 };
 
-// Soft, low-spread shadows — depth without the "floating card" look.
 export const elevation = {
   card: Platform.select({
-    web: { boxShadow: '0 1px 2px rgba(30, 36, 31, 0.05), 0 4px 16px rgba(30, 36, 31, 0.06)' },
+    web: { boxShadow: '0 2px 4px rgba(11, 34, 57, 0.04), 0 6px 20px rgba(11, 34, 57, 0.06)' },
     default: {
-      shadowColor: '#1E241F',
-      shadowOpacity: 0.07,
-      shadowRadius: 12,
-      shadowOffset: { width: 0, height: 4 },
-      elevation: 2,
+      shadowColor: '#0B2239',
+      shadowOpacity: 0.08,
+      shadowRadius: 14,
+      shadowOffset: { width: 0, height: 5 },
+      elevation: 3,
     },
   }),
   raised: Platform.select({
-    web: { boxShadow: '0 2px 4px rgba(30, 36, 31, 0.08), 0 8px 24px rgba(30, 36, 31, 0.10)' },
+    web: { boxShadow: '0 4px 8px rgba(11, 34, 57, 0.10), 0 12px 28px rgba(11, 34, 57, 0.12)' },
     default: {
-      shadowColor: '#1E241F',
-      shadowOpacity: 0.12,
-      shadowRadius: 16,
-      shadowOffset: { width: 0, height: 6 },
-      elevation: 4,
+      shadowColor: '#0B2239',
+      shadowOpacity: 0.16,
+      shadowRadius: 20,
+      shadowOffset: { width: 0, height: 8 },
+      elevation: 6,
     },
   }),
 };
 
 export const typography = {
-  display: { fontFamily: fonts.display, fontSize: 30, lineHeight: 36, color: colors.text },
+  display: { fontFamily: fonts.display, fontSize: 32, lineHeight: 38, color: colors.text },
   title: { fontFamily: fonts.display, fontSize: 25, lineHeight: 31, color: colors.text },
-  heading: { fontFamily: fonts.display, fontSize: 19, lineHeight: 25, color: colors.text },
-  quote: { fontFamily: fonts.displayItalic, fontSize: 18, lineHeight: 27, color: colors.text },
-  body: { fontSize: 16, color: colors.text, lineHeight: 23 },
-  muted: { fontSize: 14, color: colors.textMuted, lineHeight: 20 },
+  heading: { fontFamily: fonts.bold, fontSize: 19, lineHeight: 25, color: colors.text },
+  numeral: { fontFamily: fonts.display, fontSize: 40, lineHeight: 44, color: colors.text },
+  quote: { fontFamily: fonts.bold, fontSize: 19, lineHeight: 27, color: colors.text },
+  body: { fontFamily: fonts.medium, fontSize: 16, color: colors.text, lineHeight: 23 },
+  muted: { fontFamily: fonts.medium, fontSize: 14, color: colors.textMuted, lineHeight: 20 },
   label: {
+    fontFamily: fonts.bold,
     fontSize: 12,
-    fontWeight: '700',
     color: colors.textMuted,
-    letterSpacing: 1.1,
+    letterSpacing: 1.2,
     textTransform: 'uppercase',
   },
 };

@@ -44,7 +44,7 @@ const styles = StyleSheet.create({
   card: { marginTop: spacing.md },
   headerRow: { flexDirection: 'row', alignItems: 'center', gap: spacing.md },
   flex: { flex: 1 },
-  tip: { fontStyle: 'italic', marginTop: 2 },
+  tip: { marginTop: 2 },
   timeRow: {
     marginTop: spacing.md,
     flexDirection: 'row',

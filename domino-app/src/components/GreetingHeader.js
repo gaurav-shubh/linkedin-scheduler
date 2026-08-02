@@ -1,48 +1,62 @@
 import { StyleSheet, Text, View } from 'react-native';
 import { greetingForHour, quoteForDay } from '../lib/quotes';
 import { friendlyDate } from '../lib/dates';
-import { colors, radius, spacing, typography } from '../theme';
+import { colors, elevation, radius, spacing, typography } from '../theme';
 
 /**
- * The first thing seen on open: a greeting, one quote chosen for where the user
- * actually is (fresh start / momentum / comeback / evening), and their own reason
- * for doing any of this anchored underneath it.
+ * The first thing seen on open: a deep navy hero card with a greeting, one quote
+ * chosen for where the user actually is, and their own reason for doing any of
+ * this anchored underneath.
  */
 export default function GreetingHeader({ dateKey, hour, streak, totalCompleted, anchor }) {
   const { text } = quoteForDay(dateKey, { hour, streak, totalCompleted });
 
   return (
-    <View style={styles.wrap}>
-      <Text style={typography.muted}>{friendlyDate(dateKey)}</Text>
-      <Text style={[typography.display, styles.greeting]}>{greetingForHour(hour)}.</Text>
-
-      <View style={styles.quoteCard}>
-        <Text style={[typography.quote, styles.quoteText]}>“{text}”</Text>
-        {!!anchor && (
-          <View style={styles.anchorRow}>
-            <View style={styles.anchorRule} />
-            <Text style={[typography.muted, styles.anchorText]} numberOfLines={2}>
-              {anchor}
-            </Text>
-          </View>
-        )}
-      </View>
+    <View style={[styles.hero, elevation.raised]}>
+      <Text style={styles.date}>{friendlyDate(dateKey).toUpperCase()}</Text>
+      <Text style={styles.greeting}>{greetingForHour(hour)}.</Text>
+      <Text style={styles.quote}>“{text}”</Text>
+      {!!anchor && (
+        <View style={styles.anchorRow}>
+          <View style={styles.anchorDot} />
+          <Text style={styles.anchorText} numberOfLines={2}>
+            {anchor}
+          </Text>
+        </View>
+      )}
     </View>
   );
 }
 
 const styles = StyleSheet.create({
-  wrap: { marginBottom: spacing.lg },
-  greeting: { marginTop: 2, marginBottom: spacing.md },
-  quoteCard: {
-    backgroundColor: colors.primarySoft,
-    borderRadius: radius.md,
-    padding: spacing.md,
-    borderLeftWidth: 3,
-    borderLeftColor: colors.primary,
+  hero: {
+    backgroundColor: colors.ink,
+    borderRadius: radius.lg,
+    padding: spacing.lg,
+    marginBottom: spacing.lg,
   },
-  quoteText: { color: colors.primaryDark },
-  anchorRow: { flexDirection: 'row', alignItems: 'center', marginTop: spacing.sm, gap: spacing.sm },
-  anchorRule: { width: 16, height: 1, backgroundColor: colors.primary, opacity: 0.5 },
-  anchorText: { flex: 1, color: colors.primaryDark },
+  date: { ...typography.label, color: colors.mutedOnInk },
+  greeting: {
+    ...typography.display,
+    color: colors.textOnInk,
+    marginTop: spacing.xs,
+    marginBottom: spacing.md,
+  },
+  quote: { ...typography.quote, color: colors.textOnInk, opacity: 0.92 },
+  anchorRow: {
+    flexDirection: 'row',
+    alignItems: 'center',
+    gap: spacing.sm,
+    marginTop: spacing.md,
+    paddingTop: spacing.md,
+    borderTopWidth: 1,
+    borderTopColor: 'rgba(255,255,255,0.14)',
+  },
+  anchorDot: {
+    width: 8,
+    height: 8,
+    borderRadius: 4,
+    backgroundColor: colors.accent,
+  },
+  anchorText: { ...typography.muted, flex: 1, color: colors.mutedOnInk },
 });
