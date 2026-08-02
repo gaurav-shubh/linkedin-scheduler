@@ -2,6 +2,8 @@ import { useCallback, useState } from 'react';
 import { Pressable, ScrollView, StyleSheet, Text, View } from 'react-native';
 import { useFocusEffect } from 'expo-router';
 import { useSQLiteContext } from 'expo-sqlite';
+import { useSafeAreaInsets } from 'react-native-safe-area-context';
+import GreetingHeader from '../../src/components/GreetingHeader';
 import PromptEditor from '../../src/components/PromptEditor';
 import StaircaseContext from '../../src/components/StaircaseContext';
 import StreakBadge from '../../src/components/StreakBadge';
@@ -19,7 +21,7 @@ import {
   upsertDailyEntry,
   upsertPeriod,
 } from '../../src/db/queries';
-import { addDays, dateKey, friendlyDate, monthKey, weekKey } from '../../src/lib/dates';
+import { addDays, dateKey, monthKey, weekKey } from '../../src/lib/dates';
 import { computeStreak, habitProgress } from '../../src/lib/streak';
 import {
   DAILY_PROMPT,
@@ -41,6 +43,7 @@ function defaultBlockHour(previousEntry) {
 
 export default function Today() {
   const db = useSQLiteContext();
+  const insets = useSafeAreaInsets();
   const [loading, setLoading] = useState(true);
   const [entry, setEntry] = useState(null);
   const [yesterday, setYesterday] = useState(null);
@@ -163,10 +166,18 @@ export default function Today() {
   const now = new Date();
   const blockHasPassed = block.hour * 60 + block.minute <= now.getHours() * 60 + now.getMinutes();
 
+  // Anchor the day's quote to their own reason for using the app at all.
+  const anchor = context.why || context.oneYear || '';
+
   return (
-    <ScrollView style={styles.flex} contentContainerStyle={styles.scroll}>
-      <Text style={typography.muted}>{friendlyDate(today)}</Text>
-      <Text style={[typography.title, styles.title]}>Today's ONE Thing</Text>
+    <ScrollView style={styles.flex} contentContainerStyle={[styles.scroll, { paddingTop: insets.top + 12 }]}>
+      <GreetingHeader
+        dateKey={today}
+        hour={now.getHours()}
+        streak={streak}
+        totalCompleted={habit.total}
+        anchor={anchor}
+      />
 
       <StreakBadge streak={streak} habit={habit} />
 
@@ -180,9 +191,9 @@ export default function Today() {
         />
       )}
 
+      {/* The Why already anchors the quote above — repeating it here would be noise. */}
       <StaircaseContext
         items={[
-          { label: 'YOUR WHY', value: context.why },
           { label: 'ONE-YEAR GOAL', value: context.oneYear },
           { label: 'THIS MONTH', value: context.month },
           { label: 'THIS WEEK', value: context.week },
@@ -243,7 +254,6 @@ export default function Today() {
 const styles = StyleSheet.create({
   flex: { flex: 1, backgroundColor: colors.background },
   scroll: { padding: spacing.lg, paddingBottom: spacing.xl },
-  title: { marginBottom: spacing.md },
   spacer: { height: spacing.md },
   spacedTop: { marginTop: spacing.md },
   italic: { fontStyle: 'italic', marginTop: 2 },

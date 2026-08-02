@@ -3,19 +3,24 @@ import { Text } from 'react-native';
 import { colors } from '../../src/theme';
 
 function TabIcon({ emoji, focused }) {
-  return <Text style={{ fontSize: 20, opacity: focused ? 1 : 0.5 }}>{emoji}</Text>;
+  return <Text style={{ fontSize: 20, opacity: focused ? 1 : 0.45 }}>{emoji}</Text>;
 }
 
 export default function TabsLayout() {
   return (
     <Tabs
       screenOptions={{
-        headerStyle: { backgroundColor: colors.background },
-        headerShadowVisible: false,
-        headerTitleStyle: { color: colors.text, fontWeight: '700' },
+        // Screens carry their own greeting/title; a second header above them is noise.
+        headerShown: false,
         tabBarActiveTintColor: colors.primary,
         tabBarInactiveTintColor: colors.textMuted,
-        tabBarStyle: { backgroundColor: colors.surface, borderTopColor: colors.border },
+        tabBarLabelStyle: { fontSize: 11, fontWeight: '600' },
+        tabBarStyle: {
+          backgroundColor: colors.surface,
+          borderTopColor: colors.border,
+          paddingTop: 4,
+        },
+        sceneStyle: { backgroundColor: colors.background },
       }}
     >
       <Tabs.Screen

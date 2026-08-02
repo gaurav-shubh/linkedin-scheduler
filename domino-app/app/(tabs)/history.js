@@ -2,6 +2,7 @@ import { useCallback, useState } from 'react';
 import { Pressable, ScrollView, StyleSheet, Text, View } from 'react-native';
 import { useFocusEffect } from 'expo-router';
 import { useSQLiteContext } from 'expo-sqlite';
+import { useSafeAreaInsets } from 'react-native-safe-area-context';
 import Card from '../../src/components/Card';
 import CompletionHeatmap from '../../src/components/CompletionHeatmap';
 import StreakBadge from '../../src/components/StreakBadge';
@@ -17,6 +18,7 @@ import { colors, spacing, typography } from '../../src/theme';
 
 export default function History() {
   const db = useSQLiteContext();
+  const insets = useSafeAreaInsets();
   const [entries, setEntries] = useState([]);
   const [entriesByDate, setEntriesByDate] = useState({});
   const [streak, setStreak] = useState(0);
@@ -53,7 +55,7 @@ export default function History() {
   };
 
   return (
-    <ScrollView style={styles.flex} contentContainerStyle={styles.scroll}>
+    <ScrollView style={styles.flex} contentContainerStyle={[styles.scroll, { paddingTop: insets.top + 12 }]}>
       <Text style={typography.title}>Your History</Text>
       <View style={styles.gap} />
       <StreakBadge streak={streak} habit={habit} />

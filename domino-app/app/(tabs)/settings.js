@@ -2,6 +2,7 @@ import { useCallback, useState } from 'react';
 import { Alert, ScrollView, StyleSheet, Switch, Text, View } from 'react-native';
 import { useFocusEffect, useRouter } from 'expo-router';
 import { useSQLiteContext } from 'expo-sqlite';
+import { useSafeAreaInsets } from 'react-native-safe-area-context';
 import Card from '../../src/components/Card';
 import Button from '../../src/components/Button';
 import { getAllSettings, setSetting } from '../../src/db/queries';
@@ -26,6 +27,7 @@ function TimeRow({ label, hour, minute, onShift }) {
 
 export default function Settings() {
   const db = useSQLiteContext();
+  const insets = useSafeAreaInsets();
   const router = useRouter();
   const [enabled, setEnabled] = useState(false);
   const [hour, setHour] = useState(NOTIFY_DEFAULTS.morningHour);
@@ -159,7 +161,7 @@ export default function Settings() {
   };
 
   return (
-    <ScrollView style={styles.flex} contentContainerStyle={styles.scroll}>
+    <ScrollView style={styles.flex} contentContainerStyle={[styles.scroll, { paddingTop: insets.top + 12 }]}>
       <Text style={typography.title}>Settings</Text>
 
       <Card style={styles.card}>

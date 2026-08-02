@@ -2,6 +2,7 @@ import { useCallback, useState } from 'react';
 import { ScrollView, StyleSheet, Text, View } from 'react-native';
 import { useFocusEffect } from 'expo-router';
 import { useSQLiteContext } from 'expo-sqlite';
+import { useSafeAreaInsets } from 'react-native-safe-area-context';
 import Card from '../../src/components/Card';
 import PromptEditor from '../../src/components/PromptEditor';
 import { getAllGoals, upsertGoal } from '../../src/db/queries';
@@ -10,6 +11,7 @@ import { colors, spacing, typography } from '../../src/theme';
 
 export default function Goals() {
   const db = useSQLiteContext();
+  const insets = useSafeAreaInsets();
   const [goals, setGoals] = useState({});
 
   const load = useCallback(async () => {
@@ -28,7 +30,7 @@ export default function Goals() {
   };
 
   return (
-    <ScrollView style={styles.flex} contentContainerStyle={styles.scroll}>
+    <ScrollView style={styles.flex} contentContainerStyle={[styles.scroll, { paddingTop: insets.top + 12 }]}>
       <Text style={typography.title}>Your Goal Staircase</Text>
       <Text style={[typography.muted, styles.subtitle]}>
         Your why at the top, then big goals broken down to the now. Each level should make the

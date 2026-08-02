@@ -92,17 +92,10 @@ export const FOUR_THIEVES = [
 export const TIME_BLOCK_TIP =
   'Block time for your ONE Thing before anything else claims your calendar — treat it as non-negotiable.';
 
+// One screen, one idea. The framework explains itself as the staircase gets built.
 export const ONBOARDING_INTRO = [
   {
     title: 'One question, asked daily',
-    body: "The book's central idea: extraordinary results come from narrowing your focus, not widening it. Each day, week, month and year, you ask one focusing question and commit to a single answer.",
-  },
-  {
-    title: 'Goal setting to the now',
-    body: 'Big goals get broken down into a staircase: your why → someday → five years → one year → this month → this week → today. Each step should make the step above it easier.',
-  },
-  {
-    title: "Let's set your staircase",
-    body: "We'll start from the top (your why and someday goal) and work down. You can always edit these later from the Goals tab.",
+    body: 'Extraordinary results come from narrowing your focus, not widening it. Big goals become a staircase — why → someday → five years → one year → this month → this week → today — and each morning you commit to a single answer. We’ll set the top of your staircase now; everything is editable later, and every step is skippable.',
   },
 ];

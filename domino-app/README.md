@@ -39,6 +39,14 @@ history. Settings exports either a full **JSON backup** (goals, periods, entries
 settings) or a **CSV of daily entries** for a spreadsheet. On a phone this opens the share
 sheet; in a browser it downloads.
 
+### The open-the-app moment
+
+Today greets you by time of day with one quote chosen for where you actually are —
+starting out, in momentum, coming back from a missed day, or closing out the evening —
+and anchors it to *your own* Why, so the reason you started using the app is the first
+thing you see. Quotes are original to the app and deterministic per day (the same day
+always shows the same line). The UI is set in Fraunces on a warm cream/ink-green palette.
+
 ### Staying on track
 
 The app is built around the assumption that people forget, and that a system which

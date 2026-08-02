@@ -79,10 +79,14 @@ export default function Onboarding() {
         </View>
 
         {current.type === 'intro' && (
-          <Card style={styles.card}>
-            <Text style={typography.heading}>{current.title}</Text>
-            <Text style={[typography.body, styles.spacedTop]}>{current.body}</Text>
-          </Card>
+          <>
+            <Text style={styles.wordmark}>Domino</Text>
+            <Text style={styles.tagline}>One thing, done daily.</Text>
+            <Card style={styles.card}>
+              <Text style={typography.heading}>{current.title}</Text>
+              <Text style={[typography.body, styles.spacedTop]}>{current.body}</Text>
+            </Card>
+          </>
         )}
 
         {(current.type === 'goal' || current.type === 'why') && (
@@ -166,5 +170,18 @@ const styles = StyleSheet.create({
     textAlign: 'center',
     fontSize: 13,
     color: colors.textMuted,
+  },
+  wordmark: {
+    ...typography.display,
+    fontSize: 40,
+    lineHeight: 48,
+    textAlign: 'center',
+    color: colors.primaryDark,
+  },
+  tagline: {
+    ...typography.muted,
+    textAlign: 'center',
+    marginTop: spacing.xs,
+    marginBottom: spacing.lg,
   },
 });

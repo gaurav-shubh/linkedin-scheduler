@@ -20,7 +20,9 @@ export default function StreakBadge({ streak, habit }) {
           </View>
         </View>
       </View>
-      <Text style={styles.total}>{habit.total} days focused all-time</Text>
+      <Text style={styles.total}>
+        {habit.total} {habit.total === 1 ? 'day' : 'days'} focused all-time
+      </Text>
     </View>
   );
 }

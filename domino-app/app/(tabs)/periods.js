@@ -2,6 +2,7 @@ import { useCallback, useState } from 'react';
 import { Pressable, ScrollView, StyleSheet, Text, View } from 'react-native';
 import { useFocusEffect } from 'expo-router';
 import { useSQLiteContext } from 'expo-sqlite';
+import { useSafeAreaInsets } from 'react-native-safe-area-context';
 import Card from '../../src/components/Card';
 import PromptEditor from '../../src/components/PromptEditor';
 import StaircaseContext from '../../src/components/StaircaseContext';
@@ -12,6 +13,7 @@ import { colors, spacing, typography } from '../../src/theme';
 
 export default function Periods() {
   const db = useSQLiteContext();
+  const insets = useSafeAreaInsets();
   const [tab, setTab] = useState('week');
   const [why, setWhy] = useState('');
   const [oneYear, setOneYear] = useState('');
@@ -61,7 +63,7 @@ export default function Periods() {
         ];
 
   return (
-    <ScrollView style={styles.flex} contentContainerStyle={styles.scroll}>
+    <ScrollView style={styles.flex} contentContainerStyle={[styles.scroll, { paddingTop: insets.top + 12 }]}>
       <View style={styles.switcher}>
         <Pressable onPress={() => setTab('week')} style={[styles.switchBtn, tab === 'week' && styles.switchBtnActive]}>
           <Text style={[styles.switchText, tab === 'week' && styles.switchTextActive]}>This Week</Text>
