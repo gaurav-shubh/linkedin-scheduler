@@ -11,7 +11,7 @@ import { cancelAllPrompts, ensurePermission } from '../../src/lib/notifications'
 import { NOTIFY_DEFAULTS, formatTime, resyncNotifications, shiftTime } from '../../src/lib/schedule';
 import { collectExport, entriesToCsv, exportFilenames } from '../../src/lib/export';
 import { saveAndShare } from '../../src/lib/share';
-import { colors, spacing, typography } from '../../src/theme';
+import { colors, fonts, spacing, typography } from '../../src/theme';
 
 function TimeRow({ label, hour, minute, onShift }) {
   return (
@@ -261,7 +261,7 @@ const styles = StyleSheet.create({
     justifyContent: 'center',
     gap: spacing.lg,
   },
-  timeAdjust: { color: colors.accent, fontWeight: '700', fontSize: 16, padding: spacing.sm },
-  timeLabel: { fontSize: 24, fontWeight: '700', color: colors.text },
+  timeAdjust: { color: colors.accent, fontFamily: fonts.bold, fontSize: 16, padding: spacing.sm },
+  timeLabel: { fontFamily: fonts.display, fontSize: 24, color: colors.text },
   spacedTop: { marginTop: spacing.md },
 });

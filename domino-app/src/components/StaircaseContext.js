@@ -1,5 +1,5 @@
 import { StyleSheet, Text, View } from 'react-native';
-import { colors, spacing } from '../theme';
+import { colors, fonts, spacing } from '../theme';
 
 // Small breadcrumb of the goal staircase above a prompt, so the answer stays aligned upward.
 export default function StaircaseContext({ items }) {
@@ -21,7 +21,7 @@ export default function StaircaseContext({ items }) {
 const styles = StyleSheet.create({
   wrap: { marginBottom: spacing.md },
   item: { marginBottom: 2 },
-  label: { fontSize: 11, fontWeight: '700', color: colors.textMuted, letterSpacing: 0.5 },
+  label: { fontFamily: fonts.bold, fontSize: 11, color: colors.textMuted, letterSpacing: 0.5 },
   value: { fontSize: 14, color: colors.text, marginBottom: 2 },
   arrow: { fontSize: 12, color: colors.border, marginBottom: 2 },
 });

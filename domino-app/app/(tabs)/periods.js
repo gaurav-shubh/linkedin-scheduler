@@ -10,7 +10,7 @@ import StaircaseContext from '../../src/components/StaircaseContext';
 import { getGoal, getPeriod, listPeriods, upsertPeriod } from '../../src/db/queries';
 import { monthKey, monthLabel, weekKey, weekRangeLabel } from '../../src/lib/dates';
 import { PERIOD_LEVELS } from '../../src/lib/content';
-import { colors, spacing, typography } from '../../src/theme';
+import { colors, fonts, spacing, typography } from '../../src/theme';
 
 export default function Periods() {
   const db = useSQLiteContext();
@@ -121,6 +121,6 @@ const styles = StyleSheet.create({
   },
   switchBtn: { flex: 1, paddingVertical: spacing.sm, borderRadius: 10, alignItems: 'center' },
   switchBtnActive: { backgroundColor: colors.surface },
-  switchText: { color: colors.textMuted, fontWeight: '600' },
+  switchText: { color: colors.textMuted, fontFamily: fonts.bold },
   switchTextActive: { color: colors.text },
 });

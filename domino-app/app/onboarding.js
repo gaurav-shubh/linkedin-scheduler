@@ -17,7 +17,7 @@ import { upsertGoal, setSetting } from '../src/db/queries';
 import { ensurePermission } from '../src/lib/notifications';
 import { NOTIFY_DEFAULTS, formatTime, resyncNotifications, shiftTime } from '../src/lib/schedule';
 import { GOAL_LEVELS, ONBOARDING_INTRO, WHY } from '../src/lib/content';
-import { colors, spacing, typography } from '../src/theme';
+import { colors, fonts, spacing, typography } from '../src/theme';
 
 const STEPS = [
   ...ONBOARDING_INTRO.map((intro, i) => ({ type: 'intro', ...intro, key: `intro-${i}` })),
@@ -166,8 +166,8 @@ const styles = StyleSheet.create({
     justifyContent: 'center',
     gap: spacing.lg,
   },
-  timeAdjust: { color: colors.accent, fontWeight: '700', fontSize: 16, padding: spacing.sm },
-  timeLabel: { fontSize: 28, fontWeight: '700', color: colors.text },
+  timeAdjust: { color: colors.accent, fontFamily: fonts.bold, fontSize: 16, padding: spacing.sm },
+  timeLabel: { fontFamily: fonts.display, fontSize: 28, color: colors.text },
   skipHint: {
     marginTop: spacing.sm,
     textAlign: 'center',

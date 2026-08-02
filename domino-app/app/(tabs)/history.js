@@ -15,7 +15,7 @@ import {
 } from '../../src/db/queries';
 import { friendlyDate } from '../../src/lib/dates';
 import { computeLongestStreak, computeStreak, habitProgress } from '../../src/lib/streak';
-import { colors, spacing, typography } from '../../src/theme';
+import { colors, fonts, spacing, typography } from '../../src/theme';
 
 export default function History() {
   const db = useSQLiteContext();
@@ -109,6 +109,6 @@ const styles = StyleSheet.create({
   pressed: { opacity: 0.7 },
   entryRow: { flexDirection: 'row', justifyContent: 'space-between', alignItems: 'center' },
   entryText: { marginTop: 4 },
-  done: { color: colors.success, fontWeight: '700' },
-  pending: { color: colors.accent, fontWeight: '600' },
+  done: { color: colors.success, fontFamily: fonts.bold },
+  pending: { color: colors.accent, fontFamily: fonts.bold },
 });

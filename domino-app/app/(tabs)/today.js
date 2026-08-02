@@ -263,7 +263,6 @@ const styles = StyleSheet.create({
   flex: { flex: 1, backgroundColor: colors.background },
   scroll: { padding: spacing.lg, paddingBottom: spacing.xl },
   spacer: { height: spacing.md },
-  spacedTop: { marginTop: spacing.md },
   missingWrap: { marginBottom: spacing.md },
   missingHeader: { marginBottom: spacing.sm },
   missingBody: { marginTop: spacing.xs },

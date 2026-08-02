@@ -14,7 +14,7 @@
     "android": {
       "package": "app.domino.tracker",
       "adaptiveIcon": {
-        "backgroundColor": "#E6F4FE",
+        "backgroundColor": "#FAF6EF",
         "foregroundImage": "./assets/android-icon-foreground.png",
         "backgroundImage": "./assets/android-icon-background.png",
         "monochromeImage": "./assets/android-icon-monochrome.png"
@@ -32,7 +32,7 @@
       [
         "expo-notifications",
         {
-          "color": "#2F5233"
+          "color": "#F4633A"
         }
       ],
       "expo-sharing"

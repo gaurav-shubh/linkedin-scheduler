@@ -26,7 +26,7 @@ export default function CompletionHeatmap({ entriesByDate, weeks = 12 }) {
               const entry = entriesByDate[key];
               const future = d > today;
               let bg = colors.border;
-              if (!future && entry) bg = entry.completed ? colors.success : '#E7C9BC';
+              if (!future && entry) bg = entry.completed ? colors.success : colors.overlayMissed;
               return <View key={key} style={[styles.cell, { backgroundColor: future ? 'transparent' : bg }]} />;
             })}
           </View>
@@ -35,7 +35,7 @@ export default function CompletionHeatmap({ entriesByDate, weeks = 12 }) {
       <View style={styles.legendRow}>
         <View style={[styles.cell, { backgroundColor: colors.success }]} />
         <Text style={styles.legendText}>done</Text>
-        <View style={[styles.cell, { backgroundColor: '#E7C9BC' }]} />
+        <View style={[styles.cell, { backgroundColor: colors.overlayMissed }]} />
         <Text style={styles.legendText}>set, not done</Text>
         <View style={[styles.cell, { backgroundColor: colors.border }]} />
         <Text style={styles.legendText}>no entry</Text>

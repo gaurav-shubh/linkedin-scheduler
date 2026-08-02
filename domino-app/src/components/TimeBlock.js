@@ -3,7 +3,7 @@ import Card from './Card';
 import { TIME_BLOCK_TIP } from '../lib/content';
 import { SCHEDULING_SUPPORTED } from '../lib/notifications';
 import { formatTime } from '../lib/schedule';
-import { colors, spacing, typography } from '../theme';
+import { colors, fonts, spacing, typography } from '../theme';
 
 /**
  * A real time block: picking a time schedules a reminder for it, rather than the
@@ -52,7 +52,7 @@ const styles = StyleSheet.create({
     justifyContent: 'center',
     gap: spacing.lg,
   },
-  adjust: { color: colors.accent, fontWeight: '700', fontSize: 16, padding: spacing.sm },
-  time: { fontSize: 24, fontWeight: '700', color: colors.text },
+  adjust: { color: colors.accent, fontFamily: fonts.bold, fontSize: 16, padding: spacing.sm },
+  time: { fontFamily: fonts.display, fontSize: 24, color: colors.text },
   status: { marginTop: spacing.sm, textAlign: 'center' },
 });

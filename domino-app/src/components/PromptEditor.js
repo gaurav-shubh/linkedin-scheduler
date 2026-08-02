@@ -2,7 +2,7 @@ import { useEffect, useState } from 'react';
 import { StyleSheet, Text, TextInput, View } from 'react-native';
 import Card from './Card';
 import Button from './Button';
-import { colors, spacing, typography } from '../theme';
+import { colors, fonts, spacing, typography } from '../theme';
 
 export default function PromptEditor({ label, question, value, placeholder, onSave, extra }) {
   const [draft, setDraft] = useState(value || '');
@@ -67,5 +67,5 @@ const styles = StyleSheet.create({
   row: { flexDirection: 'row', gap: spacing.sm, marginTop: spacing.sm },
   flex: { flex: 1 },
   answer: { marginTop: spacing.sm },
-  editLink: { color: colors.accent, marginTop: spacing.sm, fontWeight: '600' },
+  editLink: { color: colors.accent, marginTop: spacing.sm, fontFamily: fonts.bold },
 });

@@ -3,7 +3,7 @@ import Card from './Card';
 import Button from './Button';
 import { YESTERDAY_REVIEW } from '../lib/content';
 import { friendlyDate } from '../lib/dates';
-import { colors, spacing, typography } from '../theme';
+import { colors, fonts, spacing, typography } from '../theme';
 
 /**
  * Surfaces yesterday's unmarked ONE Thing so a day that was actually done doesn't get
@@ -25,9 +25,9 @@ export default function YesterdayReview({ entry, onYes, onNo }) {
 }
 
 const styles = StyleSheet.create({
-  card: { marginBottom: spacing.md, borderColor: colors.accent },
+  card: { marginBottom: spacing.md, borderLeftWidth: 4, borderLeftColor: colors.accent },
   date: { marginTop: spacing.xs },
-  text: { marginTop: spacing.xs, fontWeight: '600' },
+  text: { marginTop: spacing.xs, fontFamily: fonts.bold },
   question: { marginTop: spacing.sm },
   row: { flexDirection: 'row', gap: spacing.sm, marginTop: spacing.sm },
   flex: { flex: 1 },
