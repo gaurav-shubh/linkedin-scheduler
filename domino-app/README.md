@@ -41,11 +41,12 @@ sheet; in a browser it downloads.
 
 ### Motion
 
-Opening the app plays a short branded intro — three dominoes tip in sequence under the
-wordmark, then the navy overlay dissolves into the day. Screen content cascades in with
-staggered spring reveals, the check-in circle springs on press and fills green when done
-(with haptic feedback on device), the 66-day bar sweeps to its value, and onboarding
-steps slide in as you advance.
+Opening shows the native navy splash, then the app takes the full screen immediately —
+there is deliberately no runtime intro overlay (it mispositioned on real devices and an
+overlay that risks looking broken is worse than none). Screen content cascades in with
+staggered reveals, the check-in circle springs on press and fills green when done (with
+haptic feedback on device), the 66-day bar sweeps to its value, and onboarding steps
+slide in as you advance. The OS reduce-motion setting disables all of it.
 
 ### The open-the-app moment
 

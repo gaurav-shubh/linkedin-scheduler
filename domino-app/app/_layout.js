@@ -1,4 +1,4 @@
-import { useEffect, useRef, useState } from 'react';
+import { useEffect, useRef } from 'react';
 import { View } from 'react-native';
 import { Stack, useRouter } from 'expo-router';
 import { SQLiteProvider } from 'expo-sqlite';
@@ -11,11 +11,9 @@ import {
   Figtree_800ExtraBold,
   useFonts,
 } from '@expo-google-fonts/figtree';
-import { useReducedMotion } from 'react-native-reanimated';
 import { initializeDatabase } from '../src/db/schema';
 import { colors } from '../src/theme';
 import { NOTIF } from '../src/lib/notifications';
-import AnimatedIntro, { INTRO_TOTAL_MS } from '../src/components/AnimatedIntro';
 
 SplashScreen.preventAutoHideAsync().catch(() => {});
 
@@ -39,9 +37,6 @@ function NotificationRouter() {
 }
 
 export default function RootLayout() {
-  const [introDone, setIntroDone] = useState(false);
-  // People who ask the OS for less motion get none of it — no intro, no cascades.
-  const reduceMotion = useReducedMotion();
   const [fontsLoaded, fontError] = useFonts({
     Figtree_500Medium,
     Figtree_700Bold,
@@ -50,25 +45,14 @@ export default function RootLayout() {
   const ready = fontsLoaded || fontError;
 
   useEffect(() => {
-    // Hide the splash once fonts settle either way — a font failure should
+    // Hide the native splash once fonts settle either way — a font failure should
     // degrade to system type, never hold the app hostage.
     if (ready) SplashScreen.hideAsync().catch(() => {});
   }, [ready]);
 
-  useEffect(() => {
-    if (!ready) return undefined;
-    if (reduceMotion) {
-      setIntroDone(true);
-      return undefined;
-    }
-    const t = setTimeout(() => setIntroDone(true), INTRO_TOTAL_MS);
-    return () => clearTimeout(t);
-  }, [ready, reduceMotion]);
-
   // Never render nothing at the root: an empty first frame can freeze the Android
-  // surface at the wrong size (seen on device as the app occupying part of the
-  // screen with dead space below). While fonts settle, hold a full-bleed navy
-  // frame — visually identical to the splash and the intro that follows it.
+  // surface at the wrong size. While fonts settle, hold a full-bleed navy frame —
+  // visually identical to the native splash it sits behind.
   if (!ready) {
     return <View style={{ flex: 1, backgroundColor: colors.ink }} />;
   }
@@ -88,7 +72,6 @@ export default function RootLayout() {
             <Stack.Screen name="onboarding" />
             <Stack.Screen name="(tabs)" />
           </Stack>
-          {!introDone && <AnimatedIntro />}
         </SQLiteProvider>
       </SafeAreaProvider>
     </View>
